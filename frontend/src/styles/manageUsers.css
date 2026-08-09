@@ -1,0 +1,30 @@
+/* User List Moderation Styling */
+.user-moderation-card {
+  padding: 24px;
+  background-color: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.user-role-select {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  outline: none;
+  background-color: #ffffff;
+  font-family: var(--font-family-body);
+  color: var(--text-main);
+  transition: var(--transition);
+}
+
+.user-role-select:focus {
+  border-color: var(--primary);
+}
+
+.user-action-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}

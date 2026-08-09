@@ -1,0 +1,76 @@
+/* Manage Questions, Tags & Reports Styling */
+.admin-table-card {
+  padding: 24px;
+  background-color: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+}
+
+/* Create Tag Form */
+.tag-create-form {
+  display: grid;
+  grid-template-columns: 200px 1fr auto;
+  gap: 16px;
+  align-items: flex-end;
+  background-color: var(--bg-main);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.tag-create-form .form-group {
+  margin-bottom: 0;
+}
+
+/* Report Statuses */
+.report-reason-box {
+  background-color: var(--danger-light);
+  color: var(--danger);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.report-status-badge {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.status-pending {
+  background-color: var(--warning-light);
+  color: var(--warning);
+}
+
+.status-resolved {
+  background-color: var(--success-light);
+  color: var(--success);
+}
+
+.status-dismissed {
+  background-color: #e2e8f0;
+  color: #64748b;
+}
+
+.report-actions {
+  display: flex;
+  gap: 6px;
+}
+
+@media (max-width: 768px) {
+  .tag-create-form {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
