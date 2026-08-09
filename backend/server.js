@@ -18,10 +18,13 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (mobile apps, curl, Postman, same-origin)
     if (!origin) return callback(null, true);
+    
     // Allow any localhost / 127.0.0.1 origin (any port) in development
-    // This handles Vite bumping to 5173, 5174, 5175, etc.
     const localhostPattern = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
-    if (localhostPattern.test(origin)) {
+    // Allow Vercel frontend domain and preview deployments
+    const vercelPattern = /^https:\/\/.*campusquery.*\.vercel\.app$/;
+
+    if (localhostPattern.test(origin) || vercelPattern.test(origin)) {
       return callback(null, true);
     }
     callback(new Error(`CORS policy: origin ${origin} not allowed`));

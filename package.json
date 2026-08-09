@@ -1,0 +1,14 @@
+{
+  "name": "campusquery",
+  "version": "1.0.0",
+  "description": "CampusQuery – Campus Knowledge Sharing Platform (monorepo root)",
+  "scripts": {
+    "build": "cd backend && npm install",
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && npm run dev",
+    "build:frontend": "cd frontend && npm install && npm run build"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

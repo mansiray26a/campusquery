@@ -1,4 +1,6 @@
-const API_URL = '/api';
+// In production (Vercel): set VITE_API_URL = https://your-app.onrender.com/api in Vercel dashboard
+// In development: falls back to '/api' which Vite proxies to localhost:5001
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const getHeaders = () => {
   const token = localStorage.getItem('token');
