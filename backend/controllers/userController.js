@@ -44,9 +44,13 @@ const getUserProfile = async (req, res, next) => {
       throw new Error('User not found');
     }
 
-    const questions = await Question.find({ author: req.params.id })
-      .populate('tags', 'name')
-      .sort({ createdAt: -1 });
+    const rawQuestions = await Question.find({ author: req.params.id });
+    const questions = [];
+    for (const q of rawQuestions) {
+      await q.populate('author');
+      await q.populate('tags');
+      questions.push(q);
+    }
 
     const answersCount = await Answer.countDocuments({ author: req.params.id });
 
@@ -96,10 +100,13 @@ const getUserDashboardData = async (req, res, next) => {
     const questionCount = await Question.countDocuments({ author: userId });
     const answerCount = await Answer.countDocuments({ author: userId });
 
-    const recentQuestions = await Question.find({ author: userId })
-      .populate('tags', 'name')
-      .sort({ createdAt: -1 })
-      .limit(5);
+    const recentQuestionsRaw = await Question.find({ author: userId }).limit(5);
+    const recentQuestions = [];
+    for (const q of recentQuestionsRaw) {
+      await q.populate('author');
+      await q.populate('tags');
+      recentQuestions.push(q);
+    }
 
     const acceptedAnswersCount = await Answer.countDocuments({ author: userId, isAccepted: true });
 

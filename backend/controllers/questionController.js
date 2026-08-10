@@ -93,21 +93,19 @@ const getAllQuestions = async (req, res, next) => {
       sortQuery = { views: -1, createdAt: -1 };
     }
 
-    const questions = await Question.find(queryObject)
-      .populate('author', 'username profilePicture reputation')
-      .populate('tags', 'name')
-      .sort(sortQuery);
+    const rawQuestions = await Question.find(queryObject);
 
-    // Get answer counts for each question
-    const questionsWithAnswersCount = await Promise.all(
-      questions.map(async (q) => {
-        const answersCount = await Answer.countDocuments({ question: q._id });
-        return {
-          ...q.toObject(),
-          answersCount
-        };
-      })
-    );
+    // Manually populate and count answers
+    const questionsWithAnswersCount = [];
+    for (const q of rawQuestions) {
+      await q.populate('author');
+      await q.populate('tags');
+      const answersCount = await Answer.countDocuments({ question: q._id });
+      questionsWithAnswersCount.push({
+        ...q.toObject(),
+        answersCount
+      });
+    }
 
     res.json({
       questions: questionsWithAnswersCount,

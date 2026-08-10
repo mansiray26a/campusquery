@@ -114,13 +114,7 @@ const deleteUser = async (req, res, next) => {
 // @access  Private/Admin
 const getReports = async (req, res, next) => {
   try {
-    const reports = await Report.find({})
-      .populate('reporter', 'username')
-      .populate({
-        path: 'targetId',
-        populate: { path: 'author', select: 'username' }
-      })
-      .sort({ createdAt: -1 });
+    const reports = await Report.find({}).populate('reporter', 'username').populate({ path: 'targetId', populate: { path: 'author', select: 'username' } }).sort({ createdAt: -1 });
 
     res.json(reports);
   } catch (error) {
