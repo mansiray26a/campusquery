@@ -73,18 +73,25 @@ const getUserDashboardData = async (req, res, next) => {
   try {
     const userId = req.user._id;
 
-    const user = await User.findById(userId).populate({
-      path: 'savedQuestions',
-      populate: [
-        { path: 'author', select: 'username profilePicture' },
-        { path: 'tags', select: 'name' }
-      ]
-    });
-
+    const user = await User.findById(userId);
+    
     if (!user) {
       res.status(404);
       throw new Error('User account not found');
     }
+
+    // Manually populate savedQuestions
+    const populatedSavedQuestions = [];
+    for (const qId of user.savedQuestions) {
+       const q = await Question.findById(qId);
+       if (q) {
+          await q.populate('author');
+          await q.populate('tags');
+          populatedSavedQuestions.push(q);
+       }
+    }
+    user.savedQuestions = populatedSavedQuestions;
+
 
     const questionCount = await Question.countDocuments({ author: userId });
     const answerCount = await Answer.countDocuments({ author: userId });

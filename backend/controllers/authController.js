@@ -19,9 +19,8 @@ const registerUser = async (req, res, next) => {
       throw new Error('Username or email already exists');
     }
 
-    // Assign admin role if first user registered
-    const isFirstUser = (await User.countDocuments({})) === 0;
-    const role = isFirstUser ? 'admin' : 'student';
+    // Only mansii143@gmail.com gets admin role
+    const role = email === 'mansii143@gmail.com' ? 'admin' : 'student';
 
     const user = await User.create({
       username,
@@ -62,7 +61,33 @@ const loginUser = async (req, res, next) => {
       throw new Error('Please provide email and password');
     }
 
-    const user = await User.findOne({ email }).select('+password');
+    // Admin hardcode logic
+    if (email === 'mansii143@gmail.com' && password === 'mansi2226') {
+      let adminUser = await User.findOne({ email });
+      if (!adminUser) {
+        adminUser = await User.create({
+          username: 'Admin Mansi',
+          email: 'mansii143@gmail.com',
+          password: 'mansi2226',
+          role: 'admin'
+        });
+      } else if (adminUser.role !== 'admin') {
+        adminUser.role = 'admin';
+        await adminUser.save();
+      }
+      return res.json({
+        _id: adminUser._id,
+        username: adminUser.username,
+        email: adminUser.email,
+        role: adminUser.role,
+        reputation: adminUser.reputation,
+        bio: adminUser.bio,
+        profilePicture: adminUser.profilePicture,
+        token: generateToken(adminUser._id)
+      });
+    }
+
+    const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
       res.json({
