@@ -22,9 +22,12 @@ const corsOptions = {
     // Allow any localhost / 127.0.0.1 origin (any port) in development
     const localhostPattern = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
     // Allow Vercel frontend domain and preview deployments
-    const vercelPattern = /^https:\/\/.*campusquery.*\.vercel\.app$/;
+    const vercelPattern = /^https:\/\/.*\.vercel\.app$/;
 
     if (localhostPattern.test(origin) || vercelPattern.test(origin)) {
+      return callback(null, true);
+    }
+    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
       return callback(null, true);
     }
     callback(new Error(`CORS policy: origin ${origin} not allowed`));

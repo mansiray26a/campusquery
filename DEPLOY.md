@@ -31,7 +31,7 @@ Under the **Environment** tab, add:
 | `JWT_SECRET` | `supersecretkeycampusquery2026` | Secret key for JWT authentication |
 | `GROQ_API_KEY` | `gsk_...` | Your Groq LLM API Key |
 
-*After setting these, Render will deploy your API service at `https://<your-render-app>.onrender.com`.*
+*After setting these, Render will deploy your API service at `https://campusquery-j60o.onrender.com`.*
 
 ---
 
@@ -51,7 +51,7 @@ Under the **Environment** tab, add:
 Under **Environment Variables**, add:
 | Key | Value | Description |
 |---|---|---|
-| `VITE_API_URL` | `https://<your-render-app>.onrender.com/api` | Full URL to your Render API |
+| `VITE_API_URL` | `https://campusquery-j60o.onrender.com/api` | Full URL to your Render API |
 
 *Click **Deploy**. Your frontend will be live at `https://campusquery-red.vercel.app` (or your custom domain).*
 
