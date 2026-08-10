@@ -1,100 +1,195 @@
-# CampusQuery
+<div align="center">
 
-CampusQuery is a MERN-stack, college-specific knowledge base sharing platform. It operates similarly to Stack Overflow, featuring student reputations, course-specific tagging, vote scores, and content moderation panels for campus administrators.
+# 🎓 CampusQuery
 
-## Features
+### A modern, college-specific knowledge-sharing & Q&A platform
 
-### 🎓 Students/Users
-- **User Authentication**: Secure signup and login using JWT and hashed passwords (bcrypt).
-- **Ask & Search**: Ask academic questions detailing code blocks, text summaries, and categories. Filter questions using keywords or course tags.
-- **Answer**: Write solutions for classmate queries.
-- **Reputational Points**: Earn +10 for question upvotes, +15 for answer upvotes, and +20 when your solution is accepted by the asker. Downvotes deduct -2.
-- **Bookmarks**: Bookmark important questions to access them from the student dashboard.
-- **Flags/Reports**: Report off-topic, offensive, or incorrect questions and answers.
+*Think Stack Overflow — but built for your campus.*
 
-### 🛡️ Administrative Moderation
-- **Moderator Dashboard**: High-level metrics showing users registry, questions count, answers count, unique tags, and open report tickets.
-- **User Audits**: Promote users to admins or revoke permissions, and delete offensive accounts.
-- **Content Moderation**: Review reported posts, delete offensive questions or answers, and dismiss false flags.
-- **Tag Management**: Configure catalog tags for student selection.
+[![Live Demo](https://img.shields.io/badge/Live_Demo-campusquery--red.vercel.app-000000?style=for-the-badge&logo=vercel)](https://campusquery-red.vercel.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+
+<br/>
+
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=flat-square&logo=express&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
+![SQLite](https://img.shields.io/badge/Turso_LibSQL-4FF8D2?style=flat-square&logo=sqlite&logoColor=black)
+![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)
+![Groq](https://img.shields.io/badge/Groq_LLM-F55036?style=flat-square&logo=meta&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=flat-square&logo=render&logoColor=white)
+
+</div>
 
 ---
 
-## Directory Structure
+## 📖 About
+
+**CampusQuery** is a full-stack Q&A platform designed specifically for college communities. Students can post technical and academic questions, get instant AI-generated answers, vote on the best solutions, and earn reputation as they help their peers — all inside a space governed by a comprehensive admin moderation panel.
+
+Built with **Node.js**, **Express**, **Turso LibSQL (Cloud SQLite)**, and **React (Vite)**, it combines a student reputation system, course-specific tagging, AI-powered answers, voting, and bookmarking into one clean experience.
+
+**🔗 Live URL:** [https://campusquery-red.vercel.app](https://campusquery-red.vercel.app)
+
+---
+
+## 📑 Table of Contents
+
+- [Features](#-features)
+- [Tech Stack](#️-tech-stack)
+- [Directory Structure](#-directory-structure)
+- [Getting Started Locally](#-getting-started-locally)
+- [Environment Variables](#-environment-variables)
+- [License](#-license)
+
+---
+
+## ✨ Features
+
+### 🎓 Students & Community
+
+| Feature | Description |
+| :--- | :--- |
+| 🔐 **Authentication** | Secure signup and login powered by **JWT** & `bcryptjs`. |
+| 💬 **Q&A System** | Post technical or academic questions with detailed descriptions, code blocks, and tags. |
+| 🤖 **Ask AI** | Get instant AI-generated answers powered by **Groq LLM** (`llama3-8b`). |
+| 🏆 **Reputation System** | Earn reputation as the community values your contributions (see below). |
+| 🔖 **Bookmarks & Saved Questions** | Save important questions and revisit them anytime from your personal dashboard. |
+| 🚩 **Content Flagging** | Report inappropriate or off-topic questions and answers for admin moderation. |
+
+#### 🏆 Reputation Points
+
+| Action | Points |
+| :--- | :---: |
+| Question upvoted | `+10` |
+| Answer upvoted | `+15` |
+| Your solution accepted as best answer | `+20` |
+| Content downvoted | `-2` |
+
+### 🛡️ Admin Moderation Panel
+
+- **📊 Dashboard Overview** — Metrics tracking total registered users, questions, answers, tags, and open report tickets.
+- **🧹 Content Moderation** — Review user reports, resolve tickets, and delete spam or offensive content.
+- **👥 User & Tag Management** — Manage user roles, delete users, and manage course tags.
+- **🔑 Admin Access** — Configured for `mansii143@gmail.com` with full administrative privileges.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React (Vite), React Router DOM, Custom CSS Architecture |
+| **Backend** | Node.js, Express.js |
+| **Database** | Turso LibSQL — Cloud-Native SQLite via `@libsql/client` |
+| **AI Integration** | Groq SDK (`groq-sdk`) — `llama3-8b` |
+| **Auth** | JWT + `bcryptjs` |
+| **Deployment** | Vercel (Frontend SPA) & Render (Backend Web Service) |
+
+---
+
+## 📁 Directory Structure
 
 ```text
-CampusQuery/
+campusquery/
 ├── backend/
-│   ├── config/              # MongoDB connection helpers
-│   ├── controllers/         # Authentication, Question, Answer, Vote, Admin controllers
-│   ├── middleware/          # JWT authentication, Admin check, and Error handler middlewares
-│   ├── models/              # Mongoose database schemas
-│   ├── routes/              # Express API route endpoints
-│   ├── utils/               # Reputation updates and token generation
-│   ├── .env                 # Environment variables config
-│   └── server.js            # Express API Entry point
+│   ├── config/              # Turso DB connection & schema initializer
+│   ├── controllers/         # Auth, Question, Answer, Vote, Admin, AI controllers
+│   ├── middleware/          # JWT authentication, Admin check & Error handlers
+│   ├── models/              # SQLite SQL-backed Data Models (User, Question, Answer, Tag, Report)
+│   ├── routes/              # Express API route handlers
+│   ├── utils/               # Reputation logic & JWT token generation
+│   ├── .env                 # Backend environment variables
+│   └── server.js            # Express API Entry Point
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/      # Reusable Navbar, Footer, QuestionCard, and AnswerCards
-│   │   ├── context/         # AuthContext sharing session states
-│   │   ├── pages/           # Landing, Login, Register, and 404 pages
-│   │   ├── services/        # API service fetch bindings
-│   │   ├── styles/          # Custom stylesheets (no UI libraries)
-│   │   ├── user/            # Student home, profile, asks, and questions details
-│   │   ├── admin/           # Admin stats, reports, tags, and user rolls moderation
-│   │   ├── App.jsx          # Route paths mapping
-│   │   └── main.jsx         # App mounting DOM
-│   └── index.html
+│   │   ├── admin/           # Admin Dashboard, Reports, Tags, Users, Answers & Questions management
+│   │   ├── components/      # Navbar, Footer, QuestionCard, AnswerCard, Route guards
+│   │   ├── context/         # AuthContext state management
+│   │   ├── pages/           # LandingPage, Login, Register, NotFound
+│   │   ├── services/        # Centralized API fetch services
+│   │   ├── styles/          # App stylesheets
+│   │   └── user/            # User Dashboard, Profile, AskQuestion, QuestionDetails
+│   ├── vercel.json          # Vercel SPA rewrite configuration
+│   └── index.html           # Main HTML Entry point
 │
+├── vercel.json              # Root SPA fallback
 └── README.md
 ```
 
 ---
 
-## Getting Started
+## 🚀 Getting Started Locally
 
 ### Prerequisites
-- Node.js installed locally.
-- Local MongoDB server or MongoDB Atlas connection URI.
 
-### Backend Setup
-1. Open a terminal and navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Install Node packages:
-   ```bash
-   npm install
-   ```
-3. Configure your local configuration inside `.env`:
-   ```env
-   PORT=5000
-   MONGO_URI=mongodb://127.0.0.1:27017/campusquery
-   JWT_SECRET=supersecretkeycampusquery2026
-   NODE_ENV=development
-   ```
-4. Start the development backend server:
-   ```bash
-   npm run dev
-   ```
+- **Node.js** (v18+)
+- **Turso CLI** or a local SQLite file *(defaults to `file:campusquery.db` if no Turso URL is specified)*
 
-### Frontend Setup
-1. Open a separate terminal and navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install packages:
-   ```bash
-   npm install
-   ```
-3. Start the Vite React client:
-   ```bash
-   npm run dev
-   ```
-4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+### 1️⃣ Backend Setup
+
+```bash
+cd backend
+npm install
+```
+
+Create a `backend/.env` file (see [Environment Variables](#-environment-variables)), then start the dev server:
+
+```bash
+npm run dev
+```
+
+### 2️⃣ Frontend Setup
+
+```bash
+cd frontend
+npm install
+```
+
+Create a `frontend/.env` file:
+
+```env
+VITE_API_URL=http://localhost:5001/api
+```
+
+Run the React app:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser. 🎉
 
 ---
 
-## Verification
-- Note: The **first registered user** in the database will automatically be granted the `admin` role for easy testing. All subsequent signups default to the `student` role.
+## 🔐 Environment Variables
+
+### `backend/.env`
+
+```env
+PORT=5001
+NODE_ENV=development
+TURSO_DATABASE_URL=libsql://your-database-name.turso.io
+TURSO_AUTH_TOKEN=your-turso-auth-token
+JWT_SECRET=supersecretkeycampusquery2026
+GROQ_API_KEY=gsk_your_groq_api_key
+```
+
+
+
+## 📝 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+<div align="center">
+
+**Made with ❤️ for campus communities**
+
+⭐ If you find this project useful, consider giving it a star!
+
+</div>
