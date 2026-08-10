@@ -27,7 +27,8 @@ Under the **Environment** tab, add:
 |---|---|---|
 | `NODE_ENV` | `production` | Sets server to production mode |
 | `PORT` | `5000` | Port for Express server |
-| `MONGO_URI` | `mongodb+srv://<user>:<password>@cluster.mongodb.net/campusquery` | MongoDB Atlas URI |
+| `TURSO_DATABASE_URL` | `libsql://<your-db-name>-<user>.turso.io` | Turso LibSQL Database URL |
+| `TURSO_AUTH_TOKEN` | `ey...` | Turso Auth Token |
 | `JWT_SECRET` | `supersecretkeycampusquery2026` | Secret key for JWT authentication |
 | `GROQ_API_KEY` | `gsk_...` | Your Groq LLM API Key |
 
