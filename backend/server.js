@@ -14,27 +14,12 @@ connectDB();
 const app = express();
 
 // Middlewares
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, Postman, same-origin)
-    if (!origin) return callback(null, true);
-    
-    // Allow any localhost / 127.0.0.1 origin (any port) in development
-    const localhostPattern = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
-    // Allow Vercel frontend domain and preview deployments
-    const vercelPattern = /^https:\/\/.*\.vercel\.app$/;
-
-    if (localhostPattern.test(origin) || vercelPattern.test(origin)) {
-      return callback(null, true);
-    }
-    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
-      return callback(null, true);
-    }
-    callback(new Error(`CORS policy: origin ${origin} not allowed`));
-  },
+app.use(cors({
+  origin: true,
   credentials: true,
-};
-app.use(cors(corsOptions));
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 app.use(express.json());
 
 if (process.env.NODE_ENV === 'development') {
