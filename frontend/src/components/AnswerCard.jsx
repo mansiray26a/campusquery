@@ -96,15 +96,23 @@ const AnswerCard = ({
                     <>
                       {(isAnswerOwner || isAdmin) && (
                         <>
+                          {/* Admin or answer owner can edit */}
                           <button className="qd-action-btn" onClick={() => setIsEditing(true)}>
                             Edit
                           </button>
-                          <button className="qd-action-btn" onClick={() => onDelete(_id)}>
-                            Delete
+                          {/* Admin delete is styled red for visibility */}
+                          <button
+                            className="qd-action-btn"
+                            onClick={() => onDelete(_id)}
+                            style={isAdmin && !isAnswerOwner ? { color: 'var(--danger)', fontWeight: '600' } : {}}
+                            title={isAdmin && !isAnswerOwner ? 'Admin: Force Delete' : 'Delete Answer'}
+                          >
+                            {isAdmin && !isAnswerOwner ? '🗑 Admin Delete' : 'Delete'}
                           </button>
                         </>
                       )}
-                      {!isAnswerOwner && (
+                      {/* Only show Report to non-owners who are NOT admins */}
+                      {!isAnswerOwner && !isAdmin && (
                         <button className="qd-action-btn" onClick={() => onReport(_id)}>
                           Report
                         </button>
@@ -117,6 +125,7 @@ const AnswerCard = ({
                     </button>
                   )}
                 </div>
+
 
                 <div className="q-meta">
                   Answered by{' '}

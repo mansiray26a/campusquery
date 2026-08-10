@@ -465,20 +465,48 @@ const QuestionDetails = () => {
                 />
               ))}
 
+              {/* ── Answer Form Section ── */}
               <div className="card answer-form" style={{ marginTop: '30px' }}>
-                <h4>Your Answer</h4>
-                <form onSubmit={handlePostAnswer} style={{ marginTop: '12px' }}>
-                  <textarea
-                    className="form-textarea"
-                    placeholder="Provide a constructive solution or advice..."
-                    value={answerBody}
-                    onChange={(e) => setAnswerBody(e.target.value)}
-                    required
-                  />
-                  <button type="submit" className="btn btn-primary">
-                    Post Your Answer
-                  </button>
-                </form>
+                {user ? (
+                  <>
+                    <h4>
+                      {isQuestionOwner
+                        ? '💬 Post Your Own Answer'
+                        : '✍️ Your Answer'}
+                    </h4>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '12px' }}>
+                      Share your knowledge and help the community. Be specific and concise.
+                    </p>
+                    <form onSubmit={handlePostAnswer} style={{ marginTop: '12px' }}>
+                      <textarea
+                        className="form-textarea"
+                        placeholder="Write a detailed, constructive answer. Include code snippets or examples if helpful..."
+                        value={answerBody}
+                        onChange={(e) => setAnswerBody(e.target.value)}
+                        rows={8}
+                        required
+                      />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
+                        <button type="submit" className="btn btn-primary">
+                          🚀 Post Your Answer
+                        </button>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                          Logged in as <strong>{user.username}</strong>
+                        </span>
+                      </div>
+                    </form>
+                  </>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '24px' }}>
+                    <p style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--text-secondary)' }}>
+                      🔐 You need to be logged in to post an answer.
+                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+                      <a href="/login" className="btn btn-primary">Login to Answer</a>
+                      <a href="/register" className="btn btn-secondary">Create Account</a>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </>
