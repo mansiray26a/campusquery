@@ -123,14 +123,13 @@ const getAllQuestions = async (req, res, next) => {
 // @access  Public
 const getQuestionDetails = async (req, res, next) => {
   try {
-    const question = await Question.findById(req.params.id)
-      .populate('author', 'username profilePicture reputation bio createdAt')
-      .populate('tags', 'name description');
-
+    const question = await Question.findById(req.params.id);
     if (!question) {
       res.status(404);
       throw new Error('Question not found');
     }
+    await question.populate('author');
+    await question.populate('tags');
 
     // Increment views
     question.views += 1;

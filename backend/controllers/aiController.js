@@ -47,14 +47,13 @@ const generateAIAnswer = async (req, res, next) => {
     }
 
     // Fetch the full question from the database so the AI has real context
-    const question = await Question.findById(questionId)
-      .populate('tags', 'name')
-      .populate('author', 'username');
-
+    const question = await Question.findById(questionId);
     if (!question) {
       res.status(404);
       throw new Error('Question not found');
     }
+    await question.populate('tags');
+    await question.populate('author');
 
     const tagNames = question.tags.map((t) => t.name).join(', ') || 'none';
 
