@@ -32,7 +32,7 @@ const getAdminStats = async (req, res, next) => {
 // @access  Private/Admin
 const getUsers = async (req, res, next) => {
   try {
-    const users = await User.find({}).sort({ createdAt: -1 });
+    const users = await User.find({});
     res.json(users);
   } catch (error) {
     next(error);
@@ -94,8 +94,11 @@ const deleteUser = async (req, res, next) => {
     }
 
     // Delete answers written by user
+    const userAnswers = await Answer.find({ author: user._id });
+    for (const a of userAnswers) {
+      await Report.deleteMany({ targetId: a._id, type: 'Answer' });
+    }
     await Answer.deleteMany({ author: user._id });
-    await Report.deleteMany({ targetId: { $in: await Answer.find({ author: user._id }).distinct('_id') }, type: 'Answer' });
 
     // Delete user
     await User.findByIdAndDelete(user._id);
@@ -186,7 +189,7 @@ const updateReportStatus = async (req, res, next) => {
 // @access  Public
 const getTags = async (req, res, next) => {
   try {
-    const tags = await Tag.find({}).sort({ questionCount: -1, name: 1 });
+    const tags = await Tag.find({});
     res.json(tags);
   } catch (error) {
     next(error);
@@ -254,10 +257,11 @@ const deleteTag = async (req, res, next) => {
 // @access  Private/Admin
 const getAnswers = async (req, res, next) => {
   try {
-    const answers = await Answer.find({})
-      .populate('author', 'username')
-      .populate('question', 'title')
-      .sort({ createdAt: -1 });
+    const answers = await Answer.find({});
+    for (const a of answers) {
+      await a.populate('author');
+      await a.populate('question');
+    }
     res.json(answers);
   } catch (error) {
     next(error);

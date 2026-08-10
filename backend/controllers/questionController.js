@@ -137,9 +137,10 @@ const getQuestionDetails = async (req, res, next) => {
     await question.save();
 
     // Fetch answers
-    const answers = await Answer.find({ question: question._id })
-      .populate('author', 'username profilePicture reputation bio createdAt')
-      .sort({ isAccepted: -1, voteScore: -1, createdAt: 1 });
+    const answers = await Answer.find({ question: question._id });
+    for (const a of answers) {
+      await a.populate('author');
+    }
 
     res.json({
       question,
