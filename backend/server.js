@@ -2,14 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
-const { connectDB } = require('./config/db');
-const { notFound, errorHandler } = require('./middleware/errorMiddleware');
-
-// Load env variables
 dotenv.config();
 
-// Connect to MongoDB
-connectDB();
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  throw new Error('Configure JWT_SECRET with at least 32 characters before starting the API');
+}
+
+const { connectDB } = require('./config/db');
+const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 const app = express();
 
@@ -73,6 +73,11 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-});
+const startServer = async () => {
+  await connectDB();
+  app.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  });
+};
+
+startServer();

@@ -39,6 +39,23 @@ export const AuthProvider = ({ children }) => {
     checkUserLoggedIn();
   }, []);
 
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key !== 'token') return;
+      ++authRevision.current;
+      setUser(null);
+      if (event.newValue) {
+        setLoading(true);
+        checkUserLoggedIn();
+      } else {
+        setLoading(false);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const loginUser = async (email, password) => {
     const revision = ++authRevision.current;
     setLoading(true);
