@@ -49,6 +49,9 @@ const Register = () => {
       <Navbar />
       <div className="auth-page">
         <div className="auth-card animate-fade-up">
+          <Link to="/" className="auth-home-link">
+            <span aria-hidden="true">&larr;</span> Back to home
+          </Link>
           <div className="auth-brand" aria-hidden="true">
             Campus<span>Query</span>
           </div>

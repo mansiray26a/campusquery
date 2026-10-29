@@ -7,6 +7,7 @@ const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
+  const isGuestAuthPage = !user && ['/login', '/register'].includes(location.pathname);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -35,7 +36,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Links */}
-        <div className="navbar-links" role="menubar">
+        {!isGuestAuthPage && <div className="navbar-links" role="menubar">
           {user && user.role !== 'admin' && (
             <NavLink
               to={user.role === 'admin' ? '/admin' : '/dashboard'}
@@ -79,10 +80,10 @@ const Navbar = () => {
               Admin Dashboard
             </NavLink>
           )}
-        </div>
+        </div>}
 
         {/* Desktop User Actions */}
-        <div className="navbar-user">
+        {!isGuestAuthPage && <div className="navbar-user">
           {user ? (
             <>
               <span className="navbar-rep" title="Reputation Points" aria-label={`${user.reputation || 0} reputation points`}>
@@ -109,10 +110,10 @@ const Navbar = () => {
               </Link>
             </>
           )}
-        </div>
+        </div>}
 
         {/* Mobile Hamburger */}
-        <button
+        {!isGuestAuthPage && <button
           className={`navbar-hamburger${menuOpen ? ' open' : ''}`}
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
@@ -122,11 +123,11 @@ const Navbar = () => {
           <span />
           <span />
           <span />
-        </button>
+        </button>}
       </div>
 
       {/* Mobile Menu Drawer */}
-      <div
+      {!isGuestAuthPage && <div
         id="mobile-menu"
         className={`navbar-mobile${menuOpen ? ' open' : ''}`}
         aria-hidden={!menuOpen}
@@ -185,7 +186,7 @@ const Navbar = () => {
             </div>
           )}
         </div>
-      </div>
+      </div>}
 
       {/* Mobile backdrop */}
       {menuOpen && (
