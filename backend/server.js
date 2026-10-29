@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
-dotenv.config();
+const path = require('path');
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const configuredJwtSecret = process.env.JWT_SECRET || process.env.JWT;
 if (!configuredJwtSecret || configuredJwtSecret.length < 32) {

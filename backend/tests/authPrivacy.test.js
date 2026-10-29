@@ -9,7 +9,7 @@ const User = require('../models/User');
 const Question = require('../models/Question');
 const Answer = require('../models/Answer');
 const { registerUser, loginUser, logoutUser } = require('../controllers/authController');
-const { getUserDashboardData } = require('../controllers/userController');
+const { getUserDashboardData, getUserProfile } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
 const makeResponse = () => ({
@@ -158,6 +158,34 @@ test('dashboard query filters are always bound to the authenticated user ID', as
   assert.ok(observedQuestionFilters.every((filter) => filter.author === 'user-a'));
   assert.ok(observedAnswerFilters.every((filter) => filter.author === 'user-a'));
   assert.equal(response.body.reputation, 31);
+});
+
+test('a missing profile returns not found without loading another user data', async (t) => {
+  const originalFindById = User.findById;
+  const originalQuestionFind = Question.find;
+  const originalAnswerCount = Answer.countDocuments;
+  let questionsQueried = false;
+  let answersCounted = false;
+  User.findById = async (id) => {
+    assert.equal(id, 'missing-user');
+    return null;
+  };
+  Question.find = () => { questionsQueried = true; throw new Error('must not fetch fallback questions'); };
+  Answer.countDocuments = async () => { answersCounted = true; return 0; };
+  t.after(() => {
+    User.findById = originalFindById;
+    Question.find = originalQuestionFind;
+    Answer.countDocuments = originalAnswerCount;
+  });
+
+  const response = makeResponse();
+  let forwardedError;
+  await getUserProfile({ params: { id: 'missing-user' } }, response, (error) => { forwardedError = error; });
+
+  assert.equal(response.statusCode, 404);
+  assert.equal(forwardedError?.message, 'User not found');
+  assert.equal(questionsQueried, false);
+  assert.equal(answersCounted, false);
 });
 
 test('logout increments the authenticated account session version', async (t) => {
