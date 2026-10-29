@@ -58,6 +58,7 @@ const updateUserRole = async (req, res, next) => {
 
     user.role = role;
     await user.save();
+    await User.incrementSessionVersion(user._id);
 
     res.json({ message: 'User role updated successfully', user: user.toAdminObject() });
   } catch (error) {

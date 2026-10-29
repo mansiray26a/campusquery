@@ -62,7 +62,7 @@ const Profile = () => {
     });
   };
 
-  if (loading) {
+  if (loading || (profileUser && String(profileUser._id) !== String(targetId))) {
     return (
       <div className="app-container">
         <Navbar />

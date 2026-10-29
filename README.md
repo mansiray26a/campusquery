@@ -73,7 +73,7 @@ Built with **Node.js**, **Express**, **Turso LibSQL (Cloud SQLite)**, and **Reac
 - **📊 Dashboard Overview** — Metrics tracking total registered users, questions, answers, tags, and open report tickets.
 - **🧹 Content Moderation** — Review user reports, resolve tickets, and delete spam or offensive content.
 - **👥 User & Tag Management** — Manage user roles, delete users, and manage course tags.
-- **🔑 Admin Access** — Configured for `mansii143@gmail.com` with full administrative privileges.
+- **🔑 Admin Access** — Administrators are assigned by an existing administrator; public registration cannot grant administrative privileges.
 
 ---
 
@@ -152,7 +152,7 @@ npm install
 Create a `frontend/.env` file:
 
 ```env
-VITE_API_URL=http://localhost:5001/api
+VITE_API_URL=http://localhost:5000/api
 ```
 
 Run the React app:
@@ -170,11 +170,11 @@ Open [http://localhost:5173](http://localhost:5173) in your browser. 🎉
 ### `backend/.env`
 
 ```env
-PORT=5001
+PORT=5000
 NODE_ENV=development
 TURSO_DATABASE_URL=libsql://your-database-name.turso.io
 TURSO_AUTH_TOKEN=your-turso-auth-token
-JWT_SECRET=supersecretkeycampusquery2026
+JWT_SECRET=use-a-random-secret-of-at-least-32-characters
 GROQ_API_KEY=gsk_your_groq_api_key
 ```
 

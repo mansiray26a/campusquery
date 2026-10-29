@@ -31,36 +31,35 @@ const IconSearch = () => (
 
 const UserDashboard = () => {
   const { user } = useContext(AuthContext);
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [dashboardResult, setDashboardResult] = useState(null);
   const [activeTab, setActiveTab] = useState('recent');
-  const [error, setError] = useState('');
+  const userId = user?._id;
 
   useEffect(() => {
     let active = true;
-    setStats(null);
-    setError('');
-    setLoading(true);
+    setDashboardResult(null);
 
     const fetchDashboardData = async () => {
       try {
         const data = await authService.getUserDashboardData();
-        if (active) setStats(data);
+        if (active) setDashboardResult({ userId, data });
       } catch (err) {
         if (active) {
-          setError('Failed to load dashboard data. Please try again.');
+          setDashboardResult({ userId, error: 'Failed to load dashboard data. Please try again.' });
           console.error(err);
         }
-      } finally {
-        if (active) setLoading(false);
       }
     };
 
     fetchDashboardData();
     return () => { active = false; };
-  }, [user?._id]);
+  }, [userId]);
 
-  if (loading) {
+  const resultIsCurrent = dashboardResult?.userId === userId;
+  const stats = resultIsCurrent ? dashboardResult.data : null;
+  const error = resultIsCurrent ? dashboardResult.error : '';
+
+  if (!resultIsCurrent) {
     return (
       <div className="app-container">
         <Navbar />

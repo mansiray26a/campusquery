@@ -93,7 +93,7 @@ const getAllQuestions = async (req, res, next) => {
       sortQuery = { views: -1, createdAt: -1 };
     }
 
-    const rawQuestions = await Question.find(queryObject);
+    const rawQuestions = await Question.find(queryObject).sort(sortQuery);
 
     // Manually populate and count answers
     const questionsWithAnswersCount = [];

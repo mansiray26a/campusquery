@@ -61,7 +61,10 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const userData = await authService.login(email, password);
-      if (revision === authRevision.current) setUser(userData);
+      if (revision === authRevision.current) {
+        if (userData.token) localStorage.setItem('token', userData.token);
+        setUser(userData);
+      }
       return userData;
     } finally {
       if (revision === authRevision.current) setLoading(false);
@@ -73,7 +76,10 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const userData = await authService.register(username, email, password);
-      if (revision === authRevision.current) setUser(userData);
+      if (revision === authRevision.current) {
+        if (userData.token) localStorage.setItem('token', userData.token);
+        setUser(userData);
+      }
       return userData;
     } finally {
       if (revision === authRevision.current) setLoading(false);

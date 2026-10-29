@@ -21,8 +21,8 @@ const Navbar = () => {
     setMenuOpen(false);
   }, [location.pathname]);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 
@@ -36,7 +36,7 @@ const Navbar = () => {
 
         {/* Desktop Links */}
         <div className="navbar-links" role="menubar">
-          {user && (
+          {user && user.role !== 'admin' && (
             <NavLink
               to={user.role === 'admin' ? '/admin' : '/dashboard'}
               className={({ isActive }) => `navbar-item${isActive ? ' active' : ''}`}
@@ -76,7 +76,7 @@ const Navbar = () => {
               className={({ isActive }) => `navbar-item navbar-item--admin${isActive ? ' active' : ''}`}
               role="menuitem"
             >
-              Admin
+              Admin Dashboard
             </NavLink>
           )}
         </div>
@@ -143,7 +143,7 @@ const Navbar = () => {
               <NavLink to="/my-questions" className={({ isActive }) => `navbar-mobile-item${isActive ? ' active' : ''}`}>
                 My Questions
               </NavLink>
-              <NavLink to="/dashboard" className={({ isActive }) => `navbar-mobile-item${isActive ? ' active' : ''}`}>
+              <NavLink to={user.role === 'admin' ? '/admin' : '/dashboard'} className={({ isActive }) => `navbar-mobile-item${isActive ? ' active' : ''}`}>
                 Dashboard
               </NavLink>
               <NavLink to="/profile" className={({ isActive }) => `navbar-mobile-item${isActive ? ' active' : ''}`}>
