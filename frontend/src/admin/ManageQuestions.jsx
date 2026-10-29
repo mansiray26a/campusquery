@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import AdminSidebar from './AdminSidebar';
 import * as questionService from '../services/questionService';
 import '../styles/adminDashboard.css';
 import '../styles/manageQuestions.css';
@@ -15,7 +16,7 @@ const ManageQuestions = () => {
   const fetchQuestions = async () => {
     try {
       const data = await questionService.getAllQuestions();
-      setQuestions(data.questions);
+      setQuestions(data.questions || []);
     } catch (err) {
       setError('Failed to fetch questions registry.');
       console.error(err);
@@ -44,8 +45,12 @@ const ManageQuestions = () => {
   };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   if (loading) {
@@ -62,23 +67,31 @@ const ManageQuestions = () => {
     <div className="app-container">
       <Navbar />
       <main className="main-content">
-        <h2>Admin Portal</h2>
+        <div style={{ marginBottom: 'var(--space-6)' }}>
+          <div style={{
+            fontSize: '0.8rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            fontWeight: 600,
+            color: 'var(--bronze)',
+            marginBottom: 'var(--space-1)'
+          }}>
+            Governance
+          </div>
+          <h2>Manage Questions</h2>
+        </div>
 
-        {error && <div className="alert alert-danger">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+        {error && <div className="alert alert-danger" role="alert">{error}</div>}
+        {success && <div className="alert alert-success" role="status">{success}</div>}
 
         <div className="admin-grid">
-          <div className="admin-sidebar">
-            <Link to="/admin" className="admin-nav-item">📊 Stats Overview</Link>
-            <Link to="/admin/users" className="admin-nav-item">👥 Manage Users</Link>
-            <Link to="/admin/questions" className="admin-nav-item active">❓ Manage Questions</Link>
-            <Link to="/admin/answers" className="admin-nav-item">💬 Manage Answers</Link>
-            <Link to="/admin/tags" className="admin-nav-item">🏷️ Manage Tags</Link>
-            <Link to="/admin/reports" className="admin-nav-item">🚨 Reports Review</Link>
-          </div>
+          <AdminSidebar />
 
-          <div className="admin-main">
-            <h3>Manage Questions</h3>
+          <section className="admin-main" aria-label="Questions list">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '1.25rem' }}>All Questions ({questions.length})</h3>
+            </div>
+
             <div className="admin-table-card table-responsive">
               <table className="table-custom">
                 <thead>
@@ -95,33 +108,34 @@ const ManageQuestions = () => {
                 <tbody>
                   {questions.map((q) => (
                     <tr key={q._id}>
-                      <td>
-                        <Link to={`/questions/${q._id}`} style={{ fontWeight: '600', color: 'var(--secondary)' }}>
+                      <td style={{ maxWidth: '280px' }}>
+                        <Link to={`/questions/${q._id}`} style={{ fontWeight: 600, color: 'var(--ink-800)' }}>
                           {q.title}
                         </Link>
                       </td>
-                      <td>{q.author?.username || 'Anonymous'}</td>
+                      <td style={{ color: 'var(--text-secondary)' }}>{q.author?.username || 'Anonymous'}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                          {q.tags.map(t => (
-                            <span key={t._id} className="tag-badge" style={{ fontSize: '0.7rem', padding: '2px 6px', margin: 0 }}>
+                          {q.tags && q.tags.map((t) => (
+                            <span key={t._id || t.name} className="tag-badge" style={{ fontSize: '0.7rem', padding: '2px 6px', margin: 0 }}>
                               {t.name}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td>{q.voteScore}</td>
-                      <td>{q.views}</td>
-                      <td>{formatDate(q.createdAt)}</td>
+                      <td>{q.voteScore || 0}</td>
+                      <td>{q.views || 0}</td>
+                      <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{formatDate(q.createdAt)}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <Link to={`/questions/${q._id}`} className="btn btn-secondary btn-sm" style={{ padding: '4px 8px' }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                          <Link to={`/questions/${q._id}`} className="btn btn-secondary btn-sm" style={{ padding: '4px 10px' }}>
                             View
                           </Link>
                           <button
                             onClick={() => handleDelete(q._id, q.title)}
                             className="btn btn-danger btn-sm"
-                            style={{ padding: '4px 8px' }}
+                            style={{ padding: '4px 10px' }}
+                            aria-label={`Delete ${q.title}`}
                           >
                             Delete
                           </button>
@@ -131,15 +145,15 @@ const ManageQuestions = () => {
                   ))}
                   {questions.length === 0 && (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-                        No questions asked yet.
+                      <td colSpan="7" style={{ textAlign: 'center', padding: 'var(--space-6)', color: 'var(--text-secondary)' }}>
+                        No questions in the database.
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
-          </div>
+          </section>
         </div>
       </main>
       <Footer />

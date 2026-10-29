@@ -1,52 +1,126 @@
-/* Auth Pages Styling */
-.auth-container {
+/* ====================================================
+   Auth Pages — Login & Register
+   ==================================================== */
+
+.auth-page {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 180px);
-  padding: 24px 16px;
+  padding: var(--space-10) var(--space-4);
+  background-color: var(--ivory);
 }
 
 .auth-card {
   width: 100%;
   max-width: 420px;
   background-color: var(--bg-card);
-  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
-  padding: 36px 30px;
+  padding: var(--space-10) var(--space-8);
 }
 
+/* Brand mark */
+.auth-brand {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--ink-800);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-6);
+  text-align: center;
+}
+
+.auth-brand span {
+  color: var(--bronze);
+}
+
+/* Header */
 .auth-header {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: var(--space-6);
 }
 
-.auth-header h2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--secondary);
-  margin-bottom: 8px;
+.auth-header h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--ink-800);
+  margin-bottom: var(--space-1);
 }
 
 .auth-header p {
+  font-size: 0.875rem;
   color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* Input with inline button (password toggle) */
+.input-with-action {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-action .form-input {
+  padding-right: 42px;
+}
+
+.input-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--stone-400);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: var(--radius-xs);
+  transition: var(--transition-fast);
+}
+
+.input-toggle-btn:hover {
+  color: var(--ink-700);
+}
+
+.input-toggle-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Submit button */
+.auth-submit-btn {
+  width: 100%;
+  margin-top: var(--space-2);
+  padding: 12px;
   font-size: 0.95rem;
 }
 
-.auth-submit-btn {
-  width: 100%;
-  margin-top: 10px;
-  padding: 12px;
-}
-
-.auth-footer {
+/* Footer link */
+.auth-footer-link {
   text-align: center;
-  margin-top: 20px;
-  font-size: 0.9rem;
+  margin-top: var(--space-5);
+  font-size: 0.875rem;
   color: var(--text-secondary);
 }
 
-.auth-footer a {
-  font-weight: 500;
+.auth-footer-link a {
+  font-weight: 600;
+  color: var(--ink-700);
+  text-decoration: underline;
+  text-decoration-color: var(--bronze);
+  text-underline-offset: 3px;
+}
+
+.auth-footer-link a:hover {
+  color: var(--bronze-hover);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .auth-card {
+    border-radius: var(--radius-lg);
+    padding: var(--space-8) var(--space-5);
+  }
 }

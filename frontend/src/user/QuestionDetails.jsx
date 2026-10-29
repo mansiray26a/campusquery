@@ -11,6 +11,38 @@ import * as authService from '../services/authService';
 import * as aiService from '../services/aiService';
 import '../styles/questions.css';
 
+/* SVG Icons */
+const IconBookmark = ({ filled }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+
+const IconUp = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polyline points="18 15 12 9 6 15"/>
+  </svg>
+);
+
+const IconDown = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polyline points="6 9 12 15 18 9"/>
+  </svg>
+);
+
+const IconSparkle = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+  </svg>
+);
+
+const IconTrash = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polyline points="3 6 5 6 21 6"/>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+  </svg>
+);
+
 const QuestionDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -40,12 +72,12 @@ const QuestionDetails = () => {
     try {
       const data = await questionService.getQuestionDetails(id);
       setQuestion(data.question);
-      setAnswers(data.answers);
+      setAnswers(data.answers || []);
       
       setEditTitle(data.question.title);
       setEditDesc(data.question.description);
       setEditBody(data.question.body);
-      setEditTags(data.question.tags.map(t => t.name).join(', '));
+      setEditTags(data.question.tags ? data.question.tags.map(t => t.name).join(', ') : '');
     } catch (err) {
       setError('Failed to load question details.');
       console.error(err);
@@ -59,9 +91,7 @@ const QuestionDetails = () => {
   }, [id]);
 
   const handleVoteQuestion = async (voteType) => {
-    if (!user) {
-      return navigate('/login');
-    }
+    if (!user) return navigate('/login');
     try {
       const data = await questionService.voteQuestion(id, voteType);
       setQuestion((prev) => ({
@@ -76,23 +106,19 @@ const QuestionDetails = () => {
   };
 
   const handleSaveQuestion = async () => {
-    if (!user) {
-      return navigate('/login');
-    }
+    if (!user) return navigate('/login');
     try {
       const data = await authService.toggleSaveQuestion(id);
-      setSuccess(data.isSaved ? 'Question bookmarked successfully!' : 'Question bookmark removed.');
+      setSuccess(data.isSaved ? 'Question bookmarked to your dashboard!' : 'Bookmark removed.');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError('Failed to toggle bookmark.');
+      setError(err.message || 'Failed to toggle bookmark.');
     }
   };
 
   const handleReportQuestion = async () => {
-    if (!user) {
-      return navigate('/login');
-    }
-    const reason = window.prompt('Why are you reporting this question? (e.g. Off-topic, inappropriate language)');
+    if (!user) return navigate('/login');
+    const reason = window.prompt('Why are you reporting this question? (e.g. Inappropriate content, spam, incorrect course code)');
     if (reason === null) return;
     if (!reason.trim()) {
       return alert('A reason is required to submit a report.');
@@ -100,7 +126,7 @@ const QuestionDetails = () => {
 
     try {
       await adminService.submitReport('Question', id, reason);
-      setSuccess('Question report submitted successfully for review.');
+      setSuccess('Question reported for moderation review.');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       setError(err.message || 'Failed to submit report.');
@@ -108,7 +134,7 @@ const QuestionDetails = () => {
   };
 
   const handleDeleteQuestion = async () => {
-    if (window.confirm('Are you sure you want to delete this question? This will permanently delete all associated answers.')) {
+    if (window.confirm('Are you sure you want to delete this question? This will also remove all associated answers.')) {
       try {
         await questionService.deleteQuestion(id);
         navigate('/questions');
@@ -131,7 +157,7 @@ const QuestionDetails = () => {
       const updated = await questionService.updateQuestion(id, editTitle, editDesc, editBody, tagsArr);
       setQuestion(updated);
       setIsEditing(false);
-      fetchDetails(); // Reload details with populated tag objects
+      fetchDetails();
       setSuccess('Question updated successfully.');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
@@ -141,86 +167,99 @@ const QuestionDetails = () => {
 
   const handlePostAnswer = async (e) => {
     e.preventDefault();
-    if (!user) {
-      return navigate('/login');
-    }
-    if (!answerBody.trim()) {
-      return setError('Answer cannot be empty.');
-    }
+    if (!user) return navigate('/login');
+    if (!answerBody.trim()) return;
 
     try {
-      await answerService.createAnswer(answerBody, id);
+      const newAnswer = await answerService.createAnswer(id, answerBody);
+      setAnswers([...answers, newAnswer]);
       setAnswerBody('');
-      fetchDetails(); // Reload answers
-      setSuccess('Answer posted successfully.');
+      setSuccess('Your answer has been posted.');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       setError(err.message || 'Failed to post answer.');
     }
   };
 
-  const handleVoteAnswer = async (answerId, voteType) => {
-    if (!user) {
-      return navigate('/login');
-    }
+  const handleVoteAnswer = async (ansId, voteType) => {
+    if (!user) return navigate('/login');
     try {
-      await answerService.voteAnswer(answerId, voteType);
-      fetchDetails();
+      const data = await answerService.voteAnswer(ansId, voteType);
+      setAnswers(answers.map((ans) => {
+        if (ans._id === ansId) {
+          return {
+            ...ans,
+            voteScore: data.voteScore,
+            upvotes: data.upvotes,
+            downvotes: data.downvotes
+          };
+        }
+        return ans;
+      }));
     } catch (err) {
       setError(err.message || 'Failed to vote on answer.');
     }
   };
 
-  const handleAcceptAnswer = async (answerId) => {
+  const handleAcceptAnswer = async (ansId) => {
+    if (!user) return navigate('/login');
     try {
-      await answerService.acceptAnswer(answerId);
-      fetchDetails();
+      const data = await answerService.acceptAnswer(ansId);
+      setAnswers(answers.map((ans) => ({
+        ...ans,
+        isAccepted: ans._id === data.acceptedAnswerId
+      })));
+      setQuestion((prev) => ({
+        ...prev,
+        acceptedAnswer: data.acceptedAnswerId
+      }));
+      setSuccess('Accepted answer status updated.');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err.message || 'Failed to update answer acceptance state.');
+      setError(err.message || 'Failed to accept answer.');
     }
   };
 
-  const handleDeleteAnswer = async (answerId) => {
+  const handleDeleteAnswer = async (ansId) => {
     if (window.confirm('Are you sure you want to delete this answer?')) {
       try {
-        await answerService.deleteAnswer(answerId);
-        fetchDetails();
+        await answerService.deleteAnswer(ansId);
+        setAnswers(answers.filter((a) => a._id !== ansId));
+        setSuccess('Answer deleted.');
+        setTimeout(() => setSuccess(''), 3000);
       } catch (err) {
         setError(err.message || 'Failed to delete answer.');
       }
     }
   };
 
-  const handleEditAnswer = async (answerId, newBody) => {
+  const handleEditAnswer = async (ansId, newBody) => {
     try {
-      await answerService.updateAnswer(answerId, newBody);
-      fetchDetails();
+      const updated = await answerService.updateAnswer(ansId, newBody);
+      setAnswers(answers.map((a) => (a._id === ansId ? { ...a, body: updated.body } : a)));
+      setSuccess('Answer updated successfully.');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       setError(err.message || 'Failed to update answer.');
     }
   };
 
-  const handleReportAnswer = async (answerId) => {
-    if (!user) {
-      return navigate('/login');
-    }
+  const handleReportAnswer = async (ansId) => {
+    if (!user) return navigate('/login');
     const reason = window.prompt('Why are you reporting this answer?');
     if (reason === null) return;
-    if (!reason.trim()) {
-      return alert('A reason is required to submit a report.');
-    }
+    if (!reason.trim()) return alert('A reason is required.');
 
     try {
-      await adminService.submitReport('Answer', answerId, reason);
-      setSuccess('Answer report submitted successfully for moderation.');
+      await adminService.submitReport('Answer', ansId, reason);
+      setSuccess('Answer report submitted.');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       setError(err.message || 'Failed to submit report.');
     }
   };
 
-  const handleGetAIAnswer = async () => {
-    if (!user) return navigate('/login');
+  const handleAskAI = async () => {
     setAiVisible(true);
     setAiLoading(true);
     setAiError('');
@@ -229,15 +268,19 @@ const QuestionDetails = () => {
       const data = await aiService.getAIAnswer(id);
       setAiAnswer(data.answer);
     } catch (err) {
-      setAiError(err.message || 'AI failed to generate an answer. Please try again.');
+      setAiError(err.message || 'AI service unavailable. Verify server connection.');
     } finally {
       setAiLoading(false);
     }
   };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   if (loading) {
@@ -254,151 +297,177 @@ const QuestionDetails = () => {
     return (
       <div className="app-container">
         <Navbar />
-        <div className="empty-state">Question not found.</div>
+        <main className="main-content">
+          <div className="empty-state">
+            <h3>Question not found</h3>
+            <p>This post may have been removed or the link is invalid.</p>
+            <Link to="/questions" className="btn btn-primary" style={{ marginTop: 'var(--space-4)' }}>
+              Browse Questions
+            </Link>
+          </div>
+        </main>
         <Footer />
       </div>
     );
   }
 
-  const isUpvoted = user ? question.upvotes.includes(user._id) : false;
-  const isDownvoted = user ? question.downvotes.includes(user._id) : false;
-  const isQuestionOwner = user ? user._id === question.author?._id : false;
-  const isAdmin = user ? user.role === 'admin' : false;
+  const isQuestionOwner = user?._id === question.author?._id;
+  const isAdmin = user?.role === 'admin';
+  const isUpvoted = user && question.upvotes ? question.upvotes.includes(user._id) : false;
+  const isDownvoted = user && question.downvotes ? question.downvotes.includes(user._id) : false;
 
   return (
     <div className="app-container">
       <Navbar />
       <main className="main-content">
-        {error && <div className="alert alert-danger">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+        {error && <div className="alert alert-danger" role="alert">{error}</div>}
+        {success && <div className="alert alert-success" role="status">{success}</div>}
 
-        {isEditing ? (
-          <div className="card">
-            <h3>Edit Question</h3>
-            <form onSubmit={handleUpdateQuestion} style={{ marginTop: '16px' }}>
-              <div className="form-group">
-                <label className="form-label">Title</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  maxLength={150}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Brief Summary (Description)</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={editDesc}
-                  onChange={(e) => setEditDesc(e.target.value)}
-                  maxLength={300}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Body Details</label>
-                <textarea
-                  className="form-textarea"
-                  value={editBody}
-                  onChange={(e) => setEditBody(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Tags (separated by commas)</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={editTags}
-                  onChange={(e) => setEditTags(e.target.value)}
-                />
-              </div>
-              <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                <button type="submit" className="btn btn-primary">Save Changes</button>
-                <button type="button" className="btn btn-secondary" onClick={() => setIsEditing(false)}>Cancel</button>
-              </div>
-            </form>
+        <div className="qd-header">
+          <h1 className="qd-title">{question.title}</h1>
+          <div className="qd-submeta">
+            <span>Asked <strong>{formatDate(question.createdAt)}</strong></span>
+            <span>Viewed <strong>{question.views || 0} times</strong></span>
+            <span>Author <strong>{question.author?.username || 'Anonymous'}</strong></span>
+            {question.author?.reputation !== undefined && (
+              <span className="navbar-rep" style={{ fontSize: '0.75rem', padding: '1px 7px' }}>
+                &#9733; {question.author.reputation} rep
+              </span>
+            )}
           </div>
-        ) : (
-          <>
-            <div className="qd-header">
-              <h1 className="qd-title">{question.title}</h1>
-              <div className="qd-submeta">
-                <span>Asked <strong>{formatDate(question.createdAt)}</strong></span>
-                <span>Active <strong>{question.views} views</strong></span>
-                <span>Author <strong>{question.author?.username || 'Anonymous'} (🏆{question.author?.reputation || 0})</strong></span>
-              </div>
-            </div>
+        </div>
 
-            <div className="qd-grid">
-              <div className="qd-vote-panel">
-                <button
-                  className={`vote-arrow ${isUpvoted ? 'voted' : ''}`}
-                  onClick={() => handleVoteQuestion('upvote')}
-                  title="Upvote Question"
-                >
-                  ▲
-                </button>
-                <span className="vote-count">{question.voteScore}</span>
-                <button
-                  className={`vote-arrow ${isDownvoted ? 'voted' : ''}`}
-                  onClick={() => handleVoteQuestion('downvote')}
-                  title="Downvote Question"
-                >
-                  ▼
-                </button>
+        <div className="qd-grid">
+          {/* Vote panel */}
+          <div className="qd-vote-panel" aria-label="Question votes">
+            <button
+              className={`vote-arrow${isUpvoted ? ' voted' : ''}`}
+              onClick={() => handleVoteQuestion('upvote')}
+              aria-label="Upvote question"
+              title="This question shows research effort and is clear"
+            >
+              <IconUp />
+            </button>
+            <span className="vote-count">{question.voteScore || 0}</span>
+            <button
+              className={`vote-arrow${isDownvoted ? ' voted-down' : ''}`}
+              onClick={() => handleVoteQuestion('downvote')}
+              aria-label="Downvote question"
+              title="This question is unclear, off-topic, or lacks context"
+            >
+              <IconDown />
+            </button>
+            <button
+              className="bookmark-icon"
+              onClick={handleSaveQuestion}
+              title="Bookmark question"
+              aria-label="Save question"
+            >
+              <IconBookmark filled={false} />
+            </button>
+          </div>
 
-                <button
-                  className="bookmark-icon"
-                  onClick={handleSaveQuestion}
-                  title="Bookmark Question"
-                >
-                  🔖
-                </button>
-              </div>
-
-              <div className="q-content">
-                <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic', marginBottom: '12px' }}>
+          {/* Question content */}
+          <div className="q-content">
+            {isEditing ? (
+              <form onSubmit={handleUpdateQuestion} className="card" style={{ padding: 'var(--space-6)' }}>
+                <h3>Edit Question</h3>
+                <div className="form-group" style={{ marginTop: 'var(--space-4)' }}>
+                  <label className="form-label">Title</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Brief Summary</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={editDesc}
+                    onChange={(e) => setEditDesc(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Detailed Body</label>
+                  <textarea
+                    className="form-textarea"
+                    value={editBody}
+                    onChange={(e) => setEditBody(e.target.value)}
+                    rows={8}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Tags (comma-separated)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={editTags}
+                    onChange={(e) => setEditTags(e.target.value)}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-4)' }}>
+                  <button type="submit" className="btn btn-primary btn-sm">Save Changes</button>
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={() => setIsEditing(false)}>Cancel</button>
+                </div>
+              </form>
+            ) : (
+              <>
+                <p style={{
+                  fontSize: '1rem',
+                  fontStyle: 'italic',
+                  color: 'var(--text-secondary)',
+                  marginBottom: 'var(--space-4)',
+                  lineHeight: 1.6
+                }}>
                   {question.description}
                 </p>
-                <div className="qd-body">{question.body}</div>
 
-                <div className="q-footer" style={{ marginTop: '20px' }}>
+                <div className="qd-body">
+                  {question.body}
+                </div>
+
+                <div className="q-footer" style={{ marginTop: 'var(--space-5)' }}>
                   <div className="q-tags">
-                    {question.tags.map((t) => (
-                      <Link key={t._id} to={`/questions?tag=${t.name}`} className="tag-badge">
+                    {question.tags && question.tags.map((t) => (
+                      <Link key={t._id || t.name} to={`/questions?tag=${t.name}`} className="tag-badge">
                         {t.name}
                       </Link>
                     ))}
                   </div>
 
                   <div className="qd-actions">
+                    <button
+                      className="ai-ask-btn"
+                      onClick={handleAskAI}
+                      disabled={aiLoading}
+                      title="Generate an AI response using Groq LLM"
+                    >
+                      <IconSparkle /> {aiLoading ? 'Consulting AI...' : 'Ask AI'}
+                    </button>
+
                     {user && (
                       <>
-                        {/* AI Answer Button */}
-                        <button
-                          className="qd-action-btn ai-ask-btn"
-                          onClick={handleGetAIAnswer}
-                          disabled={aiLoading}
-                          title="Get an AI-generated answer for this question"
-                        >
-                          {aiLoading ? '⏳ Thinking...' : '✨ Ask AI'}
-                        </button>
-
                         {(isQuestionOwner || isAdmin) && (
                           <>
                             <button className="qd-action-btn" onClick={() => setIsEditing(true)}>
                               Edit
                             </button>
-                            <button className="qd-action-btn" onClick={handleDeleteQuestion} style={{ color: 'var(--danger)' }}>
-                              Delete
+                            <button
+                              className="qd-action-btn"
+                              onClick={handleDeleteQuestion}
+                              style={isAdmin && !isQuestionOwner ? { color: 'var(--danger)', fontWeight: 600 } : {}}
+                            >
+                              <IconTrash /> {isAdmin && !isQuestionOwner ? 'Admin Delete' : 'Delete'}
                             </button>
                           </>
                         )}
-                        {!isQuestionOwner && (
+                        {!isQuestionOwner && !isAdmin && (
                           <button className="qd-action-btn" onClick={handleReportQuestion}>
                             Report
                           </button>
@@ -407,110 +476,123 @@ const QuestionDetails = () => {
                     )}
                   </div>
                 </div>
-              </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* AI Answer Section */}
+        {aiVisible && (
+          <div className="ai-answer-card">
+            <div className="ai-answer-header">
+              <span className="ai-badge">AI Response</span>
+              <span className="ai-model-label">Groq Llama-3 8B Campus Assistant</span>
+              <button
+                className="ai-close-btn"
+                onClick={() => { setAiVisible(false); setAiAnswer(''); setAiError(''); }}
+                title="Close AI response"
+                aria-label="Close AI card"
+              >
+                ✕
+              </button>
             </div>
 
-            <div className="answers-section">
-              {/* ── AI Answer Card ── */}
-              {aiVisible && (
-                <div className="ai-answer-card">
-                  <div className="ai-answer-header">
-                    <span className="ai-badge">✨ AI Answer</span>
-                    <span className="ai-model-label">Powered by Groq · llama3-8b</span>
-                    <button
-                      className="ai-close-btn"
-                      onClick={() => { setAiVisible(false); setAiAnswer(''); setAiError(''); }}
-                      title="Dismiss AI answer"
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  {aiLoading && (
-                    <div className="ai-loading">
-                      <span className="ai-dots"><span /><span /><span /></span>
-                      <p>Generating a grounded answer — this may take a few seconds…</p>
-                    </div>
-                  )}
-
-                  {aiError && !aiLoading && (
-                    <div className="alert alert-danger" style={{ margin: '12px 0 0' }}>
-                      {aiError}
-                    </div>
-                  )}
-
-                  {aiAnswer && !aiLoading && (
-                    <div className="ai-answer-body">
-                      <div className="ai-disclaimer">
-                        ⚠️ <strong>AI-generated — always verify with your course material or instructor.</strong>
-                      </div>
-                      <pre className="ai-answer-text">{aiAnswer}</pre>
-                    </div>
-                  )}
+            {aiLoading && (
+              <div className="ai-loading">
+                <div className="ai-dots">
+                  <span />
+                  <span />
+                  <span />
                 </div>
-              )}
-
-              <h3 className="answers-header">{answers.length} Answers</h3>
-              {answers.map((ans) => (
-                <AnswerCard
-                  key={ans._id}
-                  answer={ans}
-                  currentUser={user}
-                  questionAuthorId={question.author?._id}
-                  onVote={handleVoteAnswer}
-                  onAccept={handleAcceptAnswer}
-                  onDelete={handleDeleteAnswer}
-                  onEdit={handleEditAnswer}
-                  onReport={handleReportAnswer}
-                />
-              ))}
-
-              {/* ── Answer Form Section ── */}
-              <div className="card answer-form" style={{ marginTop: '30px' }}>
-                {user ? (
-                  <>
-                    <h4>
-                      {isQuestionOwner
-                        ? '💬 Post Your Own Answer'
-                        : '✍️ Your Answer'}
-                    </h4>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '12px' }}>
-                      Share your knowledge and help the community. Be specific and concise.
-                    </p>
-                    <form onSubmit={handlePostAnswer} style={{ marginTop: '12px' }}>
-                      <textarea
-                        className="form-textarea"
-                        placeholder="Write a detailed, constructive answer. Include code snippets or examples if helpful..."
-                        value={answerBody}
-                        onChange={(e) => setAnswerBody(e.target.value)}
-                        rows={8}
-                        required
-                      />
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
-                        <button type="submit" className="btn btn-primary">
-                          🚀 Post Your Answer
-                        </button>
-                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
-                          Logged in as <strong>{user.username}</strong>
-                        </span>
-                      </div>
-                    </form>
-                  </>
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '24px' }}>
-                    <p style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--text-secondary)' }}>
-                      🔐 You need to be logged in to post an answer.
-                    </p>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
-                      <a href="/login" className="btn btn-primary">Login to Answer</a>
-                      <a href="/register" className="btn btn-secondary">Create Account</a>
-                    </div>
-                  </div>
-                )}
+                <span>Analyzing question and generating solution...</span>
               </div>
-            </div>
-          </>
+            )}
+
+            {aiError && !aiLoading && (
+              <div className="alert alert-danger" style={{ margin: 'var(--space-2) 0 0' }}>
+                {aiError}
+              </div>
+            )}
+
+            {aiAnswer && !aiLoading && (
+              <div className="ai-answer-body">
+                <div className="ai-disclaimer">
+                  <strong>Campus AI Note:</strong> AI generated answers provide general guidance. Always verify academic formulas and code with your professor or course curriculum.
+                </div>
+                <pre className="ai-answer-text">{aiAnswer}</pre>
+              </div>
+            )}
+          </div>
         )}
+
+        {/* Answers List */}
+        <section className="answers-section" aria-label="Community answers">
+          <div className="answers-header">
+            <h3>{answers.length} {answers.length === 1 ? 'Answer' : 'Answers'}</h3>
+          </div>
+
+          {answers.length === 0 ? (
+            <div className="empty-state" style={{ padding: 'var(--space-8)' }}>
+              <h3>No answers yet</h3>
+              <p>Know how to solve this? Be the first to share an answer below.</p>
+            </div>
+          ) : (
+            answers.map((ans) => (
+              <AnswerCard
+                key={ans._id}
+                answer={ans}
+                currentUser={user}
+                questionAuthorId={question.author?._id}
+                onVote={handleVoteAnswer}
+                onAccept={handleAcceptAnswer}
+                onDelete={handleDeleteAnswer}
+                onEdit={handleEditAnswer}
+                onReport={handleReportAnswer}
+              />
+            ))
+          )}
+
+          {/* Post Answer Form */}
+          <div className="card answer-form" style={{ marginTop: 'var(--space-8)' }}>
+            {user ? (
+              <form onSubmit={handlePostAnswer}>
+                <h4>
+                  {isQuestionOwner ? 'Post a Follow-Up Solution' : 'Your Answer'}
+                </h4>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: 'var(--space-3)' }}>
+                  Provide a clear, reproducible solution with code or references where applicable.
+                </p>
+                <textarea
+                  className="form-textarea"
+                  placeholder="Write your explanation or code here..."
+                  value={answerBody}
+                  onChange={(e) => setAnswerBody(e.target.value)}
+                  rows={8}
+                  required
+                />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'var(--space-3)', flexWrap: 'wrap', gap: 'var(--space-3)' }}>
+                  <button type="submit" className="btn btn-primary">
+                    Post Your Answer
+                  </button>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                    Posting as <strong>{user.username}</strong>
+                  </span>
+                </div>
+              </form>
+            ) : (
+              <div style={{ textAlign: 'center', padding: 'var(--space-6)' }}>
+                <h4>Sign in to contribute an answer</h4>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 'var(--space-2) auto var(--space-4)', maxWidth: '400px' }}>
+                  Join CampusQuery to post your answer, earn reputation, and help fellow students.
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-3)' }}>
+                  <Link to="/login" className="btn btn-primary">Sign In</Link>
+                  <Link to="/register" className="btn btn-secondary">Create Account</Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
       </main>
       <Footer />
     </div>

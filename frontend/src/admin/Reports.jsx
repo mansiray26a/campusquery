@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import AdminSidebar from './AdminSidebar';
 import * as adminService from '../services/adminService';
 import * as questionService from '../services/questionService';
 import * as answerService from '../services/answerService';
@@ -17,7 +18,7 @@ const Reports = () => {
   const fetchReports = async () => {
     try {
       const data = await adminService.getReports();
-      setReports(data);
+      setReports(data || []);
     } catch (err) {
       setError('Failed to fetch reports list.');
       console.error(err);
@@ -44,7 +45,7 @@ const Reports = () => {
   };
 
   const handleDeleteContent = async (reportId, contentType, targetId) => {
-    if (window.confirm(`Are you sure you want to delete this flagged ${contentType}? This action is permanent.`)) {
+    if (window.confirm(`Are you sure you want to delete this flagged ${contentType}? This action cannot be undone.`)) {
       setError('');
       setSuccess('');
       try {
@@ -65,15 +66,21 @@ const Reports = () => {
   };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   if (loading) {
     return (
       <div className="app-container">
         <Navbar />
-        <div className="loading-spinner">Loading reports logs...</div>
+        <div className="loading-spinner">Loading reports log...</div>
         <Footer />
       </div>
     );
@@ -83,23 +90,31 @@ const Reports = () => {
     <div className="app-container">
       <Navbar />
       <main className="main-content">
-        <h2>Admin Portal</h2>
+        <div style={{ marginBottom: 'var(--space-6)' }}>
+          <div style={{
+            fontSize: '0.8rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            fontWeight: 600,
+            color: 'var(--bronze)',
+            marginBottom: 'var(--space-1)'
+          }}>
+            Governance
+          </div>
+          <h2>Moderation Reports</h2>
+        </div>
 
-        {error && <div className="alert alert-danger">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+        {error && <div className="alert alert-danger" role="alert">{error}</div>}
+        {success && <div className="alert alert-success" role="status">{success}</div>}
 
         <div className="admin-grid">
-          <div className="admin-sidebar">
-            <Link to="/admin" className="admin-nav-item">📊 Stats Overview</Link>
-            <Link to="/admin/users" className="admin-nav-item">👥 Manage Users</Link>
-            <Link to="/admin/questions" className="admin-nav-item">❓ Manage Questions</Link>
-            <Link to="/admin/answers" className="admin-nav-item">💬 Manage Answers</Link>
-            <Link to="/admin/tags" className="admin-nav-item">🏷️ Manage Tags</Link>
-            <Link to="/admin/reports" className="admin-nav-item active">🚨 Reports Review</Link>
-          </div>
+          <AdminSidebar />
 
-          <div className="admin-main">
-            <h3>Reports Moderation</h3>
+          <section className="admin-main" aria-label="Moderation tickets">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '1.25rem' }}>Report Tickets ({reports.length})</h3>
+            </div>
+
             <div className="admin-table-card table-responsive">
               <table className="table-custom">
                 <thead>
@@ -107,7 +122,7 @@ const Reports = () => {
                     <th>Reporter</th>
                     <th>Type</th>
                     <th>Reason</th>
-                    <th>Content Preview / Context</th>
+                    <th>Context</th>
                     <th>Status</th>
                     <th>Reported On</th>
                     <th>Actions</th>
@@ -117,10 +132,12 @@ const Reports = () => {
                   {reports.map((r) => {
                     const hasTarget = !!r.targetId;
                     const questionId = r.type === 'Question' ? r.targetId?._id : r.targetId?.question;
-                    
+
                     return (
                       <tr key={r._id}>
-                        <td>{r.reporter?.username || 'Anonymous'}</td>
+                        <td>
+                          <strong>{r.reporter?.username || 'Anonymous'}</strong>
+                        </td>
                         <td>
                           <span className={`badge ${r.type === 'Question' ? 'badge-student' : 'badge-admin'}`}>
                             {r.type}
@@ -133,7 +150,7 @@ const Reports = () => {
                         </td>
                         <td>
                           {hasTarget && questionId ? (
-                            <Link to={`/questions/${questionId}`} style={{ color: 'var(--primary)', fontWeight: '500' }}>
+                            <Link to={`/questions/${questionId}`} style={{ color: 'var(--ink-800)', fontWeight: 600 }}>
                               View Context
                             </Link>
                           ) : (
@@ -145,15 +162,15 @@ const Reports = () => {
                             {r.status}
                           </span>
                         </td>
-                        <td>{formatDate(r.createdAt)}</td>
+                        <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{formatDate(r.createdAt)}</td>
                         <td>
                           <div className="report-actions">
-                            {r.status === 'pending' && (
+                            {r.status === 'pending' ? (
                               <>
                                 <button
                                   onClick={() => handleStatusChange(r._id, 'dismissed')}
                                   className="btn btn-secondary btn-sm"
-                                  style={{ padding: '4px 8px' }}
+                                  style={{ padding: '4px 10px' }}
                                 >
                                   Dismiss
                                 </button>
@@ -161,14 +178,13 @@ const Reports = () => {
                                   <button
                                     onClick={() => handleDeleteContent(r._id, r.type, r.targetId._id)}
                                     className="btn btn-danger btn-sm"
-                                    style={{ padding: '4px 8px' }}
+                                    style={{ padding: '4px 10px' }}
                                   >
                                     Delete Content
                                   </button>
                                 )}
                               </>
-                            )}
-                            {r.status !== 'pending' && (
+                            ) : (
                               <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Resolved</span>
                             )}
                           </div>
@@ -178,15 +194,15 @@ const Reports = () => {
                   })}
                   {reports.length === 0 && (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-                        No reports logged in system.
+                      <td colSpan="7" style={{ textAlign: 'center', padding: 'var(--space-6)', color: 'var(--text-secondary)' }}>
+                        No reports logged in the system.
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
-          </div>
+          </section>
         </div>
       </main>
       <Footer />

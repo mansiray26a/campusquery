@@ -37,8 +37,6 @@ export const AuthProvider = ({ children }) => {
       const userData = await authService.login(email, password);
       setUser(userData);
       return userData;
-    } catch (error) {
-      throw error;
     } finally {
       setLoading(false);
     }
@@ -50,8 +48,6 @@ export const AuthProvider = ({ children }) => {
       const userData = await authService.register(username, email, password);
       setUser(userData);
       return userData;
-    } catch (error) {
-      throw error;
     } finally {
       setLoading(false);
     }

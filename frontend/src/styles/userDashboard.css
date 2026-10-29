@@ -1,60 +1,65 @@
-/* User Dashboard Styling */
+/* ====================================================
+   User Dashboard — CampusQuery editorial style
+   ==================================================== */
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: 280px 1fr;
-  gap: 24px;
-  margin-top: 8px;
+  gap: var(--space-6);
+  margin-top: var(--space-4);
 }
 
 .dashboard-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-4);
 }
 
 .user-summary-card {
   text-align: center;
-  padding: 28px 20px;
+  padding: var(--space-6) var(--space-5);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
 }
 
 .dashboard-avatar {
-  width: 76px;
-  height: 76px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background-color: var(--primary-light);
-  color: var(--primary);
+  background-color: var(--bronze-light);
+  color: var(--bronze-hover);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 700;
-  margin: 0 auto 16px auto;
-  border: 3px solid var(--primary-light);
+  margin: 0 auto var(--space-3) auto;
+  border: 2px solid var(--bronze-muted);
   overflow: hidden;
+  font-family: var(--font-display);
+}
+
+.dashboard-avatar img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
 .dashboard-username {
   font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--secondary);
-  margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dashboard-role-badge {
-  margin-bottom: 16px;
+  font-weight: 600;
+  color: var(--ink-800);
+  margin-bottom: var(--space-1);
 }
 
 .stats-mini-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: var(--space-2);
   border-top: 1px solid var(--border);
-  padding-top: 16px;
-  margin-top: 16px;
+  padding-top: var(--space-4);
+  margin-top: var(--space-4);
 }
 
 .stat-mini-item {
@@ -62,79 +67,61 @@
 }
 
 .stat-mini-val {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  color: var(--secondary);
-  font-family: var(--font-family-display);
+  color: var(--ink-800);
+  font-family: var(--font-display);
 }
 
 .stat-mini-lbl {
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   color: var(--text-secondary);
   text-transform: uppercase;
   font-weight: 600;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.05em;
 }
 
 /* Sidebar Nav */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .sidebar-nav-btn {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
+  gap: var(--space-3);
+  padding: 10px 14px;
   border-radius: var(--radius-md);
-  color: var(--text-main);
+  color: var(--ink-700);
   font-weight: 500;
-  transition: var(--transition);
+  transition: var(--transition-fast);
   cursor: pointer;
   background-color: var(--bg-card);
   border: 1px solid var(--border);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  text-decoration: none;
 }
 
-.sidebar-nav-btn:hover, .sidebar-nav-btn.active {
-  background-color: var(--primary-light);
-  color: var(--primary);
-  border-color: var(--primary-light);
+.sidebar-nav-btn:hover {
+  background-color: var(--stone-100);
+  border-color: var(--stone-400);
+  color: var(--ink-900);
 }
 
 /* Main Dashboard section */
 .dashboard-main {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-}
-
-.dashboard-section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 10px;
-  margin-bottom: 16px;
-}
-
-.dashboard-section-header h3 {
-  margin-bottom: 0;
-  font-size: 1.3rem;
-}
-
-.questions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  gap: var(--space-5);
+  min-width: 0;
 }
 
 .dashboard-tabs {
   display: flex;
   border-bottom: 1.5px solid var(--border);
-  margin-bottom: 20px;
-  gap: 20px;
+  gap: var(--space-4);
 }
 
 .dashboard-tab {
@@ -144,15 +131,27 @@
   color: var(--text-secondary);
   border-bottom: 2px solid transparent;
   cursor: pointer;
-  transition: var(--transition);
+  transition: var(--transition-fast);
+  margin-bottom: -1.5px;
+}
+
+.dashboard-tab:hover {
+  color: var(--ink-800);
 }
 
 .dashboard-tab.active {
-  color: var(--primary);
-  border-color: var(--primary);
+  color: var(--ink-800);
+  border-bottom-color: var(--bronze);
+  font-weight: 600;
 }
 
-@media (max-width: 992px) {
+.questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (max-width: 900px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }

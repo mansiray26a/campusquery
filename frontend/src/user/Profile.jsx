@@ -25,8 +25,8 @@ const Profile = () => {
       try {
         const data = await authService.getUserProfile(targetId);
         setProfileUser(data);
-        setQuestions(data.questions);
-        setAnswersCount(data.answersCount);
+        setQuestions(data.questions || []);
+        setAnswersCount(data.answersCount || 0);
       } catch (err) {
         setError('Failed to load profile details.');
         console.error(err);
@@ -39,8 +39,12 @@ const Profile = () => {
   }, [targetId]);
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   if (loading) {
@@ -57,7 +61,15 @@ const Profile = () => {
     return (
       <div className="app-container">
         <Navbar />
-        <div className="empty-state">User profile not found.</div>
+        <main className="main-content">
+          <div className="empty-state">
+            <h3>User not found</h3>
+            <p>The profile you are looking for does not exist or has been removed.</p>
+            <Link to="/questions" className="btn btn-primary" style={{ marginTop: 'var(--space-4)' }}>
+              Browse Questions
+            </Link>
+          </div>
+        </main>
         <Footer />
       </div>
     );
@@ -69,16 +81,16 @@ const Profile = () => {
     <div className="app-container">
       <Navbar />
       <main className="main-content">
-        {error && <div className="alert alert-danger">{error}</div>}
+        {error && <div className="alert alert-danger" role="alert">{error}</div>}
 
-        <div className="profile-container">
+        <div className="profile-container animate-fade-up">
           <div className="profile-card">
             <div className="profile-avatar-section">
-              <div className="profile-avatar">
+              <div className="profile-avatar" aria-hidden="true">
                 {profileUser.profilePicture ? (
-                  <img src={profileUser.profilePicture} alt={profileUser.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={profileUser.profilePicture} alt={profileUser.username} />
                 ) : (
-                  profileUser.username.charAt(0).toUpperCase()
+                  profileUser.username?.charAt(0).toUpperCase()
                 )}
               </div>
               <span className={`badge ${profileUser.role === 'admin' ? 'badge-admin' : 'badge-student'}`}>
@@ -87,14 +99,14 @@ const Profile = () => {
             </div>
 
             <div className="profile-info">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-3)' }}>
                 <div>
                   <h2 className="profile-username">{profileUser.username}</h2>
                   <div className="profile-joined">Member since {formatDate(profileUser.createdAt)}</div>
                 </div>
                 {isSelf && (
                   <Link to="/profile/edit" className="btn btn-secondary btn-sm">
-                    ⚙ Edit Profile
+                    Edit Profile
                   </Link>
                 )}
               </div>
@@ -120,7 +132,7 @@ const Profile = () => {
             </div>
           </div>
 
-          <h3 style={{ marginBottom: '16px' }}>
+          <h3 style={{ marginBottom: 'var(--space-4)' }}>
             {isSelf ? 'My Contributions' : `${profileUser.username}'s Questions`}
           </h3>
           <div className="questions-feed">
@@ -129,8 +141,8 @@ const Profile = () => {
                 <QuestionCard key={q._id} question={{ ...q, author: profileUser }} />
               ))
             ) : (
-              <div className="empty-state" style={{ padding: '24px' }}>
-                No questions asked by this student.
+              <div className="empty-state">
+                <p>No questions posted yet by this user.</p>
               </div>
             )}
           </div>

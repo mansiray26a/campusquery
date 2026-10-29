@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import AdminSidebar from './AdminSidebar';
 import * as adminService from '../services/adminService';
 import '../styles/adminDashboard.css';
 
@@ -39,22 +39,27 @@ const AdminDashboard = () => {
     <div className="app-container">
       <Navbar />
       <main className="main-content">
-        <h2>Admin Portal</h2>
+        <div style={{ marginBottom: 'var(--space-6)' }}>
+          <div style={{
+            fontSize: '0.8rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            fontWeight: 600,
+            color: 'var(--bronze)',
+            marginBottom: 'var(--space-1)'
+          }}>
+            Governance
+          </div>
+          <h2>Admin Portal</h2>
+        </div>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+        {error && <div className="alert alert-danger" role="alert">{error}</div>}
 
         <div className="admin-grid">
-          <div className="admin-sidebar">
-            <Link to="/admin" className="admin-nav-item active">📊 Stats Overview</Link>
-            <Link to="/admin/users" className="admin-nav-item">👥 Manage Users</Link>
-            <Link to="/admin/questions" className="admin-nav-item">❓ Manage Questions</Link>
-            <Link to="/admin/answers" className="admin-nav-item">💬 Manage Answers</Link>
-            <Link to="/admin/tags" className="admin-nav-item">🏷️ Manage Tags</Link>
-            <Link to="/admin/reports" className="admin-nav-item">🚨 Reports Review</Link>
-          </div>
+          <AdminSidebar />
 
-          <div className="admin-main">
-            <h3>Overview Metrics</h3>
+          <section className="admin-main" aria-label="Administrative metrics">
+            <h3 style={{ fontSize: '1.25rem' }}>Platform Metrics</h3>
             <div className="admin-stats-grid">
               <div className="admin-stat-card">
                 <span className="admin-stat-num">{stats?.totalUsers || 0}</span>
@@ -70,21 +75,26 @@ const AdminDashboard = () => {
               </div>
               <div className="admin-stat-card">
                 <span className="admin-stat-num">{stats?.totalTags || 0}</span>
-                <span className="admin-stat-label">Unique Course Tags</span>
+                <span className="admin-stat-label">Course Tags</span>
               </div>
-              <div className="admin-stat-card" style={stats?.pendingReports > 0 ? { borderLeft: '4px solid var(--danger)' } : {}}>
-                <span className="admin-stat-num" style={stats?.pendingReports > 0 ? { color: 'var(--danger)' } : {}}>{stats?.pendingReports || 0}</span>
+              <div
+                className="admin-stat-card"
+                style={stats?.pendingReports > 0 ? { borderLeft: '4px solid var(--danger)' } : {}}
+              >
+                <span className="admin-stat-num" style={stats?.pendingReports > 0 ? { color: 'var(--danger)' } : {}}>
+                  {stats?.pendingReports || 0}
+                </span>
                 <span className="admin-stat-label">Pending Reports</span>
               </div>
             </div>
 
-            <div className="card" style={{ marginTop: '20px' }}>
-              <h4>Moderator Guideline Summary</h4>
-              <p style={{ marginTop: '10px', fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                Welcome to the CampusQuery administration panel. Use the sidebar controls to moderate reported posts, review registration rolls, delete flagged questions or answers, and configure catalog tags. Ensure all campus guidelines are met when deleting student content.
+            <div className="card" style={{ marginTop: 'var(--space-3)' }}>
+              <h4>Campus Moderation Guidelines</h4>
+              <p style={{ marginTop: 'var(--space-2)', fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.65' }}>
+                Welcome to the CampusQuery administration portal. Use the navigation sidebar to review reported questions and answers, manage course catalog tags, and oversee community accounts. All moderation actions (e.g. deleting offensive posts or demoting spam accounts) take effect immediately across the knowledge base.
               </p>
             </div>
-          </div>
+          </section>
         </div>
       </main>
       <Footer />

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import AdminSidebar from './AdminSidebar';
 import * as adminService from '../services/adminService';
 import * as answerService from '../services/answerService';
 import '../styles/adminDashboard.css';
@@ -16,7 +17,7 @@ const ManageAnswers = () => {
   const fetchAnswers = async () => {
     try {
       const data = await adminService.getAnswers();
-      setAnswers(data);
+      setAnswers(data || []);
     } catch (err) {
       setError('Failed to fetch answers registry.');
       console.error(err);
@@ -45,8 +46,14 @@ const ManageAnswers = () => {
   };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   if (loading) {
@@ -63,28 +70,36 @@ const ManageAnswers = () => {
     <div className="app-container">
       <Navbar />
       <main className="main-content">
-        <h2>Admin Portal</h2>
+        <div style={{ marginBottom: 'var(--space-6)' }}>
+          <div style={{
+            fontSize: '0.8rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            fontWeight: 600,
+            color: 'var(--bronze)',
+            marginBottom: 'var(--space-1)'
+          }}>
+            Governance
+          </div>
+          <h2>Manage Answers</h2>
+        </div>
 
-        {error && <div className="alert alert-danger">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+        {error && <div className="alert alert-danger" role="alert">{error}</div>}
+        {success && <div className="alert alert-success" role="status">{success}</div>}
 
         <div className="admin-grid">
-          <div className="admin-sidebar">
-            <Link to="/admin" className="admin-nav-item">📊 Stats Overview</Link>
-            <Link to="/admin/users" className="admin-nav-item">👥 Manage Users</Link>
-            <Link to="/admin/questions" className="admin-nav-item">❓ Manage Questions</Link>
-            <Link to="/admin/answers" className="admin-nav-item active">💬 Manage Answers</Link>
-            <Link to="/admin/tags" className="admin-nav-item">🏷️ Manage Tags</Link>
-            <Link to="/admin/reports" className="admin-nav-item">🚨 Reports Review</Link>
-          </div>
+          <AdminSidebar />
 
-          <div className="admin-main">
-            <h3>Manage Answers</h3>
+          <section className="admin-main" aria-label="Answers list">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '1.25rem' }}>All Answers ({answers.length})</h3>
+            </div>
+
             <div className="admin-table-card table-responsive">
               <table className="table-custom">
                 <thead>
                   <tr>
-                    <th>Answer Summary</th>
+                    <th>Answer Content</th>
                     <th>Author</th>
                     <th>Question</th>
                     <th>Posted</th>
@@ -94,31 +109,32 @@ const ManageAnswers = () => {
                 <tbody>
                   {answers.map((a) => (
                     <tr key={a._id}>
-                      <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <td style={{ maxWidth: '320px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {a.body}
                       </td>
-                      <td>{a.author?.username || 'Anonymous'}</td>
-                      <td>
+                      <td style={{ color: 'var(--text-secondary)' }}>{a.author?.username || 'Anonymous'}</td>
+                      <td style={{ maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {a.question ? (
-                          <Link to={`/questions/${a.question._id}`} style={{ fontWeight: '500', color: 'var(--secondary)' }}>
+                          <Link to={`/questions/${a.question._id}`} style={{ fontWeight: 500, color: 'var(--ink-800)' }}>
                             {a.question.title}
                           </Link>
                         ) : (
                           <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>Deleted Question</span>
                         )}
                       </td>
-                      <td>{formatDate(a.createdAt)}</td>
+                      <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{formatDate(a.createdAt)}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                           {a.question && (
-                            <Link to={`/questions/${a.question._id}`} className="btn btn-secondary btn-sm" style={{ padding: '4px 8px' }}>
+                            <Link to={`/questions/${a.question._id}`} className="btn btn-secondary btn-sm" style={{ padding: '4px 10px' }}>
                               View
                             </Link>
                           )}
                           <button
                             onClick={() => handleDelete(a._id)}
                             className="btn btn-danger btn-sm"
-                            style={{ padding: '4px 8px' }}
+                            style={{ padding: '4px 10px' }}
+                            aria-label="Delete answer"
                           >
                             Delete
                           </button>
@@ -128,7 +144,7 @@ const ManageAnswers = () => {
                   ))}
                   {answers.length === 0 && (
                     <tr>
-                      <td colSpan="5" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
+                      <td colSpan="5" style={{ textAlign: 'center', padding: 'var(--space-6)', color: 'var(--text-secondary)' }}>
                         No answers posted yet.
                       </td>
                     </tr>
@@ -136,7 +152,7 @@ const ManageAnswers = () => {
                 </tbody>
               </table>
             </div>
-          </div>
+          </section>
         </div>
       </main>
       <Footer />

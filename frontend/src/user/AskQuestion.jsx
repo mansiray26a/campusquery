@@ -19,7 +19,7 @@ const AskQuestion = () => {
     setError('');
 
     if (!title.trim() || !description.trim() || !body.trim()) {
-      return setError('Please fill in title, summary description, and details body');
+      return setError('Please provide a title, a short summary description, and a detailed body.');
     }
 
     setLoading(true);
@@ -30,8 +30,8 @@ const AskQuestion = () => {
       .filter((tag) => tag !== '');
 
     try {
-      await questionService.createQuestion(title, description, body, tags);
-      navigate('/questions');
+      const created = await questionService.createQuestion(title, description, body, tags);
+      navigate(created?._id ? `/questions/${created._id}` : '/questions');
     } catch (err) {
       setError(err.message || 'Failed to submit question. Please try again.');
     } finally {
@@ -43,26 +43,44 @@ const AskQuestion = () => {
     <div className="app-container">
       <Navbar />
       <main className="main-content">
-        <div className="ask-container">
-          <h2>Ask a Question</h2>
-          
-          <div className="ask-instructions">
-            <h4>Formulating a good question:</h4>
+        <div className="ask-container animate-fade-up">
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <div style={{
+              fontSize: '0.8rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              fontWeight: 600,
+              color: 'var(--bronze)',
+              marginBottom: 'var(--space-1)'
+            }}>
+              Academic Query
+            </div>
+            <h2>Ask a Question</h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+              Pose a technical challenge, homework concept, or campus academic query to fellow students.
+            </p>
+          </div>
+
+          <div className="ask-tip">
+            <h4>Writing a great campus question:</h4>
             <ul>
-              <li>Write a clear, descriptive title referencing the course or subject.</li>
-              <li>Provide a concise summary in the description box.</li>
-              <li>In the detailed body, describe what you have tried, share your code context, and specify errors.</li>
-              <li>Add up to 5 course or technology tags, separated by commas.</li>
+              <li><strong>Descriptive Title:</strong> Mention specific concepts, tools, or course codes (e.g., <em>"Resolving segmentation fault in C++ linked list (CS-201)"</em>).</li>
+              <li><strong>Brief Summary:</strong> A 1-2 sentence overview so peers can quickly recognize whether they can help.</li>
+              <li><strong>Detailed Body:</strong> Include the code snippet, inputs tested, expected versus actual behavior, and full compiler/terminal messages.</li>
+              <li><strong>Course Tags:</strong> Add comma-separated tags like <code>cs-101, algorithms, c++</code> for easy filtering.</li>
             </ul>
           </div>
 
-          {error && <div className="alert alert-danger">{error}</div>}
+          {error && <div className="alert alert-danger" role="alert">{error}</div>}
 
           <div className="card">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
               <div className="form-group">
-                <label className="form-label">Title</label>
+                <label className="form-label" htmlFor="q-title">
+                  Question Title <span style={{ color: 'var(--danger)' }}>*</span>
+                </label>
                 <input
+                  id="q-title"
                   type="text"
                   className="form-input"
                   placeholder="e.g. How to balance a Red-Black Tree in Java?"
@@ -71,48 +89,62 @@ const AskQuestion = () => {
                   maxLength={150}
                   required
                 />
+                <span className="form-hint">Be specific and frame your title like a question (max 150 chars).</span>
               </div>
 
               <div className="form-group">
-                <label className="form-label">Brief Summary (Description)</label>
+                <label className="form-label" htmlFor="q-desc">
+                  Brief Summary (Description) <span style={{ color: 'var(--danger)' }}>*</span>
+                </label>
                 <input
+                  id="q-desc"
                   type="text"
                   className="form-input"
-                  placeholder="Summarize your question in 1-2 sentences (max 300 characters)"
+                  placeholder="Summarize the core block in 1-2 sentences"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   maxLength={300}
                   required
                 />
+                <span className="form-hint">Displayed in search results and feeds (max 300 chars).</span>
               </div>
 
               <div className="form-group">
-                <label className="form-label">Detailed Body</label>
+                <label className="form-label" htmlFor="q-body">
+                  Detailed Explanation &amp; Code <span style={{ color: 'var(--danger)' }}>*</span>
+                </label>
                 <textarea
+                  id="q-body"
                   className="form-textarea"
-                  placeholder="Provide all details, console outputs, and what you've tried..."
+                  placeholder="Provide context, full details, console logs, and reproducible code..."
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
+                  rows={9}
                   required
                 />
+                <span className="form-hint">Provide everything needed for another student to reproduce and solve the issue.</span>
               </div>
 
               <div className="form-group">
-                <label className="form-label">Tags (separated by commas)</label>
+                <label className="form-label" htmlFor="q-tags">
+                  Course &amp; Subject Tags
+                </label>
                 <input
+                  id="q-tags"
                   type="text"
                   className="form-input"
-                  placeholder="e.g. cs-101, trees, algorithms"
+                  placeholder="e.g. cs-101, algorithms, binary-trees"
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                 />
+                <span className="form-hint">Separate multiple tags with commas (up to 5 tags).</span>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-6)', flexWrap: 'wrap' }}>
                 <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? 'Posting...' : 'Post Question'}
+                  {loading ? 'Submitting Question...' : 'Post Question'}
                 </button>
-                <button type="button" className="btn btn-secondary" onClick={() => navigate(-1)}>
+                <button type="button" className="btn btn-secondary" onClick={() => navigate(-1)} disabled={loading}>
                   Cancel
                 </button>
               </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import AdminSidebar from './AdminSidebar';
 import * as adminService from '../services/adminService';
 import '../styles/adminDashboard.css';
 import '../styles/manageQuestions.css';
@@ -18,7 +18,7 @@ const ManageTags = () => {
   const fetchTags = async () => {
     try {
       const data = await adminService.getTags();
-      setTags(data);
+      setTags(data || []);
     } catch (err) {
       setError('Failed to fetch tag catalog.');
       console.error(err);
@@ -37,7 +37,7 @@ const ManageTags = () => {
     setSuccess('');
 
     if (!name.trim() || !description.trim()) {
-      return setError('Please fill in tag name and description.');
+      return setError('Please provide both a tag name and a description.');
     }
 
     try {
@@ -81,30 +81,34 @@ const ManageTags = () => {
     <div className="app-container">
       <Navbar />
       <main className="main-content">
-        <h2>Admin Portal</h2>
+        <div style={{ marginBottom: 'var(--space-6)' }}>
+          <div style={{
+            fontSize: '0.8rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            fontWeight: 600,
+            color: 'var(--bronze)',
+            marginBottom: 'var(--space-1)'
+          }}>
+            Governance
+          </div>
+          <h2>Manage Course Tags</h2>
+        </div>
 
-        {error && <div className="alert alert-danger">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+        {error && <div className="alert alert-danger" role="alert">{error}</div>}
+        {success && <div className="alert alert-success" role="status">{success}</div>}
 
         <div className="admin-grid">
-          <div className="admin-sidebar">
-            <Link to="/admin" className="admin-nav-item">📊 Stats Overview</Link>
-            <Link to="/admin/users" className="admin-nav-item">👥 Manage Users</Link>
-            <Link to="/admin/questions" className="admin-nav-item">❓ Manage Questions</Link>
-            <Link to="/admin/answers" className="admin-nav-item">💬 Manage Answers</Link>
-            <Link to="/admin/tags" className="admin-nav-item active">🏷️ Manage Tags</Link>
-            <Link to="/admin/reports" className="admin-nav-item">🚨 Reports Review</Link>
-          </div>
+          <AdminSidebar />
 
-          <div className="admin-main">
-            <h3>Manage Tags</h3>
-
-            <div className="card" style={{ marginBottom: '24px' }}>
+          <section className="admin-main" aria-label="Course tag management">
+            <div className="card" style={{ marginBottom: 'var(--space-6)' }}>
               <h4>Create New Course Tag</h4>
-              <form onSubmit={handleCreateTag} className="tag-create-form" style={{ marginTop: '16px', background: 'none', border: 'none', padding: 0 }}>
+              <form onSubmit={handleCreateTag} className="tag-create-form" style={{ marginTop: 'var(--space-4)', background: 'none', border: 'none', padding: 0 }}>
                 <div className="form-group">
-                  <label className="form-label">Tag Name</label>
+                  <label className="form-label" htmlFor="tag-name">Tag Identifier</label>
                   <input
+                    id="tag-name"
                     type="text"
                     className="form-input"
                     placeholder="e.g. cs-101"
@@ -115,11 +119,12 @@ const ManageTags = () => {
                 </div>
                 
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label className="form-label">Description</label>
+                  <label className="form-label" htmlFor="tag-desc">Course / Subject Scope</label>
                   <input
+                    id="tag-desc"
                     type="text"
                     className="form-input"
-                    placeholder="Introduce course title or scope..."
+                    placeholder="Brief description of the course or topic..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     required
@@ -146,16 +151,18 @@ const ManageTags = () => {
                   {tags.map((t) => (
                     <tr key={t._id}>
                       <td>
-                        <span className="tag-badge" style={{ margin: 0, fontSize: '0.85rem' }}>
+                        <span className="tag-badge" style={{ margin: 0, fontSize: '0.82rem' }}>
                           {t.name}
                         </span>
                       </td>
-                      <td>{t.description}</td>
-                      <td>📊 {t.questionCount} posts</td>
+                      <td style={{ color: 'var(--text-secondary)' }}>{t.description}</td>
+                      <td>{t.questionCount || 0} questions</td>
                       <td>
                         <button
                           onClick={() => handleDeleteTag(t._id, t.name)}
                           className="btn btn-danger btn-sm"
+                          style={{ padding: '4px 10px' }}
+                          aria-label={`Delete tag ${t.name}`}
                         >
                           Delete
                         </button>
@@ -164,15 +171,15 @@ const ManageTags = () => {
                   ))}
                   {tags.length === 0 && (
                     <tr>
-                      <td colSpan="4" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-                        No catalog tags configured yet.
+                      <td colSpan="4" style={{ textAlign: 'center', padding: 'var(--space-6)', color: 'var(--text-secondary)' }}>
+                        No course tags configured yet.
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
-          </div>
+          </section>
         </div>
       </main>
       <Footer />

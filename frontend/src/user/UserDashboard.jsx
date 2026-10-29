@@ -7,6 +7,28 @@ import QuestionCard from '../components/QuestionCard';
 import * as authService from '../services/authService';
 import '../styles/userDashboard.css';
 
+/* SVG Icons */
+const IconPlus = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+);
+
+const IconUserEdit = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+);
+
+const IconSearch = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="11" cy="11" r="8"/>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+  </svg>
+);
+
 const UserDashboard = () => {
   const { user } = useContext(AuthContext);
   const [stats, setStats] = useState(null);
@@ -44,18 +66,30 @@ const UserDashboard = () => {
     <div className="app-container">
       <Navbar />
       <main className="main-content">
-        <h2>Dashboard</h2>
+        <div style={{ marginBottom: 'var(--space-5)' }}>
+          <div style={{
+            fontSize: '0.8rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            fontWeight: 600,
+            color: 'var(--bronze)',
+            marginBottom: 'var(--space-1)'
+          }}>
+            Overview
+          </div>
+          <h2>Student Dashboard</h2>
+        </div>
         
-        {error && <div className="alert alert-danger">{error}</div>}
+        {error && <div className="alert alert-danger" role="alert">{error}</div>}
 
         <div className="dashboard-grid">
-          <div className="dashboard-sidebar">
-            <div className="card user-summary-card">
-              <div className="dashboard-avatar">
+          <aside className="dashboard-sidebar" aria-label="Student overview">
+            <div className="user-summary-card">
+              <div className="dashboard-avatar" aria-hidden="true">
                 {user?.profilePicture ? (
-                  <img src={user.profilePicture} alt={user.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={user.profilePicture} alt={user.username} />
                 ) : (
-                  user?.username.charAt(0).toUpperCase()
+                  user?.username?.charAt(0).toUpperCase()
                 )}
               </div>
               <h3 className="dashboard-username">{user?.username}</h3>
@@ -66,7 +100,7 @@ const UserDashboard = () => {
               <div className="stats-mini-grid">
                 <div className="stat-mini-item">
                   <div className="stat-mini-val">{stats?.reputation || 0}</div>
-                  <div className="stat-mini-lbl">Rep</div>
+                  <div className="stat-mini-lbl">Reputation</div>
                 </div>
                 <div className="stat-mini-item">
                   <div className="stat-mini-val">{stats?.questionCount || 0}</div>
@@ -79,33 +113,41 @@ const UserDashboard = () => {
               </div>
             </div>
 
-            <div className="sidebar-nav">
+            <nav className="sidebar-nav" aria-label="Quick actions">
               <Link to="/ask" className="sidebar-nav-btn">
-                ✍ Ask a Question
+                <IconPlus /> Ask a Question
               </Link>
               <Link to="/profile/edit" className="sidebar-nav-btn">
-                ⚙ Edit Profile
+                <IconUserEdit /> Edit Profile
               </Link>
               <Link to="/questions" className="sidebar-nav-btn">
-                🔍 Browse All Questions
+                <IconSearch /> Browse All Questions
               </Link>
-            </div>
-          </div>
+            </nav>
+          </aside>
 
-          <div className="dashboard-main">
-            <div className="dashboard-tabs">
-              <div
-                className={`dashboard-tab ${activeTab === 'recent' ? 'active' : ''}`}
+          <section className="dashboard-main" aria-label="Dashboard questions">
+            <div className="dashboard-tabs" role="tablist">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'recent'}
+                className={`dashboard-tab${activeTab === 'recent' ? ' active' : ''}`}
                 onClick={() => setActiveTab('recent')}
+                style={{ background: 'none', border: 'none' }}
               >
                 My Questions ({stats?.recentQuestions?.length || 0})
-              </div>
-              <div
-                className={`dashboard-tab ${activeTab === 'saved' ? 'active' : ''}`}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'saved'}
+                className={`dashboard-tab${activeTab === 'saved' ? ' active' : ''}`}
                 onClick={() => setActiveTab('saved')}
+                style={{ background: 'none', border: 'none' }}
               >
                 Bookmarked Questions ({stats?.savedQuestions?.length || 0})
-              </div>
+              </button>
             </div>
 
             <div className="questions-list">
@@ -117,8 +159,8 @@ const UserDashboard = () => {
                 ) : (
                   <div className="empty-state">
                     <h3>No Questions Asked Yet</h3>
-                    <p style={{ marginTop: '8px' }}>Stuck on a campus course concept? Create your first post.</p>
-                    <Link to="/ask" className="btn btn-primary" style={{ marginTop: '16px' }}>
+                    <p>Have an inquiry or stuck on a concept? Post your first question.</p>
+                    <Link to="/ask" className="btn btn-primary" style={{ marginTop: 'var(--space-4)' }}>
                       Ask Question
                     </Link>
                   </div>
@@ -130,16 +172,16 @@ const UserDashboard = () => {
                   ))
                 ) : (
                   <div className="empty-state">
-                    <h3>No Saved Questions</h3>
-                    <p style={{ marginTop: '8px' }}>Bookmark helpful questions to review them later.</p>
-                    <Link to="/questions" className="btn btn-secondary" style={{ marginTop: '16px' }}>
+                    <h3>No Bookmarked Questions</h3>
+                    <p>Save helpful questions while browsing to reference them later.</p>
+                    <Link to="/questions" className="btn btn-secondary" style={{ marginTop: 'var(--space-4)' }}>
                       Browse Questions
                     </Link>
                   </div>
                 )
               )}
             </div>
-          </div>
+          </section>
         </div>
       </main>
       <Footer />

@@ -5,133 +5,243 @@ import Footer from '../components/Footer';
 import * as adminService from '../services/adminService';
 import '../styles/landing.css';
 
+/* ── Inline SVG icons (no broken emoji) ──────────────────── */
+const IconQuestion = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
+  </svg>
+);
+
+const IconStar = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+  </svg>
+);
+
+const IconTag = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+    <line x1="7" y1="7" x2="7.01" y2="7" />
+  </svg>
+);
+
+const IconAI = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3h-1v1a4 4 0 0 1-8 0v-1H7a3 3 0 0 1-3-3V10a3 3 0 0 1 3-3h1V6a4 4 0 0 1 4-4z" />
+  </svg>
+);
+
+/* ─────────────────────────────────────────────────────────── */
+
 const LandingPage = () => {
   const [tags, setTags] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [tagsLoading, setTagsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTags = async () => {
-      try {
-        const data = await adminService.getTags();
-        setTags(data.slice(0, 8));
-      } catch (err) {
-        console.error('Failed to load tags:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTags();
+    adminService.getTags()
+      .then(data => setTags(data.slice(0, 10)))
+      .catch(() => {})
+      .finally(() => setTagsLoading(false));
   }, []);
 
   return (
     <div className="app-container">
       <Navbar />
-      <main className="main-content">
-        <section className="hero-section">
-          <h1 className="hero-title">
-            Your College Knowledge Base <span>Platform</span>
-          </h1>
-          <p className="hero-subtitle">
-            Welcome to CampusQuery! Ask questions, get help from fellow students, write code, share notes, and build up your academic reputation points.
-          </p>
-          <div className="hero-actions">
-            <Link to="/questions" className="btn btn-primary">
-              Browse Questions
-            </Link>
-            <Link to="/ask" className="btn btn-secondary">
-              Ask a Question
-            </Link>
+      <main>
+        <section className="hero-showcase" aria-label="Campus Q&A overview">
+          <div className="hero-copy animate-fade-up">
+            <p className="hero-eyebrow">Built for campus learning</p>
+            <h1 className="hero-heading">
+              Get unstuck.<br />
+              <em>Learn together.</em>
+            </h1>
+            <p className="hero-body">
+              A focused Q&amp;A space for students to ask course questions, share what works,
+              and find clear answers from their campus community.
+            </p>
+            <div className="hero-actions">
+              <Link to="/questions" className="btn btn-primary btn-lg">
+                Browse Questions
+              </Link>
+              <Link to="/register" className="btn btn-secondary btn-lg">
+                Join the community
+              </Link>
+            </div>
+
+            <div className="hero-proof" role="list" aria-label="Platform highlights">
+              <span role="listitem">
+                <strong>Peer answers</strong> with AI assistance
+              </span>
+              <span className="proof-sep" aria-hidden="true">·</span>
+              <span role="listitem">
+                <strong>Reputation</strong> system
+              </span>
+              <span className="proof-sep" aria-hidden="true">·</span>
+              <span role="listitem">
+                <strong>Course</strong> tagging
+              </span>
+            </div>
+          </div>
+          <div className="hero-preview" aria-label="Example campus discussion">
+            <div className="preview-topbar">
+              <div className="preview-title"><span className="preview-live-dot" />Campus discussions</div>
+              <Link to="/questions" className="preview-link">View all <span aria-hidden="true">&rarr;</span></Link>
+            </div>
+            <article className="preview-question">
+              <div className="preview-meta"><span>CS 204</span><span>Algorithms</span><span>2 hours ago</span></div>
+              <h2>Why does Dijkstra’s algorithm fail with negative edge weights?</h2>
+              <p>I understand the greedy choice for non-negative weights, but I’m not seeing exactly where it breaks when a later path can reduce the total cost.</p>
+              <div className="preview-tags"><span>graph-theory</span><span>homework-help</span></div>
+            </article>
+            <article className="preview-answer">
+              <div className="preview-answer-heading"><span className="accepted-mark">&#10003;</span><span>Helpful answer</span><span className="answer-votes">&#9650; 18</span></div>
+              <p>Once a node is marked complete, Dijkstra never revisits it. A negative edge can create a cheaper route afterward, so that earlier decision is no longer guaranteed.</p>
+              <div className="preview-author"><span className="author-avatar">A</span><span><strong>Alex M.</strong><small>Computer Science · 240 rep</small></span></div>
+            </article>
+            <div className="preview-footer"><span><strong>6</strong> answers</span><span><strong>1</strong> accepted</span><span className="preview-status">Resolved</span></div>
           </div>
         </section>
 
-        <section className="features-section">
+        {/* ── FEATURES ──────────────────────────────────────── */}
+        <section className="features-section main-content" aria-labelledby="features-heading">
           <div className="section-header">
-            <h2>Why CampusQuery?</h2>
-            <p>Designed specifically to help college students share knowledge and solve course assignments together.</p>
+            <h2 id="features-heading">Everything your campus needs</h2>
+            <p>Designed for the academic workflow — from a stuck assignment to a deep technical discussion.</p>
           </div>
+
           <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">❓</div>
+            <article className="feature-card">
+              <div className="feature-icon" aria-hidden="true"><IconQuestion /></div>
               <h3>Ask Questions</h3>
-              <p>Stuck on an algorithms homework or a lab project? Describe it and get answers from students who took the course.</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">🏆</div>
+              <p>Stuck on an algorithms homework or a lab project? Post a detailed question and get answers from students who've been there.</p>
+            </article>
+
+            <article className="feature-card">
+              <div className="feature-icon" aria-hidden="true"><IconStar /></div>
               <h3>Earn Reputation</h3>
-              <p>Get recognized by your peers! Earn reputation points whenever your answers are upvoted or selected as the best solution.</p>
+              <p>Your expertise is visible. Earn points when your answers are upvoted or accepted as the best solution — the more you help, the higher you rank.</p>
+            </article>
+
+            <article className="feature-card">
+              <div className="feature-icon" aria-hidden="true"><IconTag /></div>
+              <h3>Course Tagging</h3>
+              <p>Filter by course codes like CS-101 or EE-202, or explore topics like algorithms, databases, and internship prep.</p>
+            </article>
+
+            <article className="feature-card">
+              <div className="feature-icon feature-icon--ai" aria-hidden="true"><IconAI /></div>
+              <h3>AI Assistance</h3>
+              <p>Still stuck? Invoke the AI to get an instant Groq-powered answer grounded in your question context — clearly labelled so you always know its source.</p>
+            </article>
+          </div>
+        </section>
+
+        {/* ── HOW IT WORKS ──────────────────────────────────── */}
+        <section className="how-section main-content" aria-labelledby="how-heading">
+          <div className="section-header">
+            <h2 id="how-heading">How it works</h2>
+            <p>From question to resolution in three steps.</p>
+          </div>
+
+          <ol className="steps-list">
+            <li className="step-item">
+              <div className="step-num" aria-hidden="true">1</div>
+              <div className="step-body">
+                <h3>Post or search</h3>
+                <p>Search the existing knowledge base first. If your question hasn't been answered, post it with a clear title, description, and relevant course tags.</p>
+              </div>
+            </li>
+            <li className="step-item">
+              <div className="step-num" aria-hidden="true">2</div>
+              <div className="step-body">
+                <h3>Collaborate</h3>
+                <p>Peers, seniors, and alumni submit answers with code snippets, tips, and explanations. Upvote what helps, downvote what misleads.</p>
+              </div>
+            </li>
+            <li className="step-item">
+              <div className="step-num" aria-hidden="true">3</div>
+              <div className="step-body">
+                <h3>Accept &amp; close</h3>
+                <p>Mark the best response as accepted. The author earns reputation, and the thread is resolved — ready to help the next student who finds it.</p>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        {/* ── REPUTATION TABLE ──────────────────────────────── */}
+        <section className="rep-section main-content" aria-labelledby="rep-heading">
+          <div className="rep-inner">
+            <div className="rep-copy">
+              <h2 id="rep-heading">Earn as you help</h2>
+              <p>CampusQuery rewards contribution. Points accumulate every time your peers acknowledge your expertise.</p>
+              <Link to="/register" className="btn btn-accent" style={{ marginTop: 'var(--space-5)' }}>
+                Start contributing
+              </Link>
             </div>
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">🏷️</div>
-              <h3>Tag Categories</h3>
-              <p>Browse by course codes like CS-101, EE-202, or general topics like machine learning, exams prep, and internships.</p>
+            <div className="rep-table-wrap">
+              <table className="rep-table" aria-label="Reputation point actions">
+                <thead>
+                  <tr>
+                    <th scope="col">Action</th>
+                    <th scope="col">Points</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Question upvoted</td><td className="rep-pts rep-pos">+10</td></tr>
+                  <tr><td>Answer upvoted</td><td className="rep-pts rep-pos">+15</td></tr>
+                  <tr><td>Answer accepted as best</td><td className="rep-pts rep-pos">+20</td></tr>
+                  <tr><td>Content downvoted</td><td className="rep-pts rep-neg">−2</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </section>
 
-        <section className="how-it-works">
-          <h2 style={{ textAlign: 'center' }}>How It Works</h2>
-          <div className="steps-container">
-            <div className="step-item">
-              <div className="step-num">1</div>
-              <h4>Ask or Search</h4>
-              <p>Search existing queries or create a new question detailing your technical block.</p>
-            </div>
-            <div className="step-item">
-              <div className="step-num">2</div>
-              <h4>Collaborate</h4>
-              <p>Other students submit answers and reply with tips, links, and code snippets.</p>
-            </div>
-            <div className="step-item">
-              <div className="step-num">3</div>
-              <h4>Select Solution</h4>
-              <p>Select the best response to mark it as resolved, awarding points to the author.</p>
-            </div>
+        {/* ── POPULAR TAGS ──────────────────────────────────── */}
+        <section className="tags-section main-content" aria-labelledby="tags-heading">
+          <div className="section-header">
+            <h2 id="tags-heading">Popular course tags</h2>
+            <p>Browse by subject, course code, or technology area.</p>
           </div>
-        </section>
-
-        <section className="popular-tags-section">
-          <h2>Popular Course Tags</h2>
-          <p style={{ color: 'var(--text-secondary)' }}>Click a tag below to filter academic queries by subject</p>
-          <div className="tags-cloud">
-            {loading ? (
-              <p>Loading course tags...</p>
+          <div className="tags-cloud" role="list">
+            {tagsLoading ? (
+              <p className="text-muted" style={{ fontSize: '0.9rem' }}>Loading tags…</p>
             ) : tags.length > 0 ? (
-              tags.map((tag) => (
-                <Link key={tag._id} to={`/questions?tag=${tag.name}`} className="tag-badge" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
-                  {tag.name} ({tag.questionCount})
+              tags.map(tag => (
+                <Link
+                  key={tag._id}
+                  to={`/questions?tag=${tag.name}`}
+                  className="tag-badge"
+                  role="listitem"
+                >
+                  {tag.name}
+                  {tag.questionCount > 0 && (
+                    <span className="tag-count" aria-label={`${tag.questionCount} questions`}>
+                      &nbsp;{tag.questionCount}
+                    </span>
+                  )}
                 </Link>
               ))
             ) : (
-              ['cs-101', 'data-structures', 'database-systems', 'algorithms', 'computer-networks', 'web-dev'].map((defaultTag) => (
-                <Link key={defaultTag} to={`/questions?tag=${defaultTag}`} className="tag-badge" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
-                  {defaultTag}
-                </Link>
+              ['cs-101', 'data-structures', 'algorithms', 'database-systems', 'computer-networks', 'web-dev'].map(t => (
+                <Link key={t} to={`/questions?tag=${t}`} className="tag-badge" role="listitem">{t}</Link>
               ))
             )}
           </div>
         </section>
 
-        <section style={{ marginBottom: '64px' }}>
-          <div className="section-header">
-            <h2>Campus Activity Overview</h2>
-            <p>Our growing academic ecosystem stats</p>
-          </div>
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-num">450+</div>
-              <div className="stat-text">Active Students</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-num">1,200+</div>
-              <div className="stat-text">Queries Asked</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-num">3,500+</div>
-              <div className="stat-text">Solutions Given</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-num">98%</div>
-              <div className="stat-text">Resolution Rate</div>
+        {/* ── CTA STRIP ─────────────────────────────────────── */}
+        <section className="cta-strip" aria-label="Call to action">
+          <div className="cta-strip-inner main-content">
+            <h2>Ready to ask your first question?</h2>
+            <p>Join hundreds of students sharing knowledge and solving problems together.</p>
+            <div className="cta-strip-actions">
+              <Link to="/register" className="btn btn-accent btn-lg">Create free account</Link>
+              <Link to="/questions" className="btn btn-ghost btn-lg" style={{ color: 'var(--stone-300)' }}>
+                Browse first
+              </Link>
             </div>
           </div>
         </section>

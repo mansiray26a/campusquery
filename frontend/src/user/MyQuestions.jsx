@@ -18,7 +18,7 @@ const MyQuestions = () => {
       if (!user) return;
       try {
         const data = await questionService.getAllQuestions({ author: user._id });
-        setQuestions(data.questions);
+        setQuestions(data.questions || []);
       } catch (err) {
         setError('Failed to load your questions.');
         console.error(err);
@@ -44,12 +44,36 @@ const MyQuestions = () => {
     <div className="app-container">
       <Navbar />
       <main className="main-content">
-        <h2>My Questions</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
-          Manage and review queries you have submitted on the platform.
-        </p>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 'var(--space-4)',
+          marginBottom: 'var(--space-6)'
+        }}>
+          <div>
+            <div style={{
+              fontSize: '0.8rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              fontWeight: 600,
+              color: 'var(--bronze)',
+              marginBottom: 'var(--space-1)'
+            }}>
+              Contributions
+            </div>
+            <h2>My Questions</h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+              Manage and track queries you have posted to the platform.
+            </p>
+          </div>
+          <Link to="/ask" className="btn btn-primary">
+            Ask a Question
+          </Link>
+        </div>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+        {error && <div className="alert alert-danger" role="alert">{error}</div>}
 
         <div className="questions-feed" style={{ maxWidth: '850px' }}>
           {questions.length > 0 ? (
@@ -59,8 +83,8 @@ const MyQuestions = () => {
           ) : (
             <div className="empty-state">
               <h3>You haven't asked any questions yet</h3>
-              <p style={{ marginTop: '8px' }}>Need help with code, assignments, or campus queries?</p>
-              <Link to="/ask" className="btn btn-primary" style={{ marginTop: '16px' }}>
+              <p>Stuck on homework, lab code, or a conceptual problem?</p>
+              <Link to="/ask" className="btn btn-primary" style={{ marginTop: 'var(--space-4)' }}>
                 Ask a Question
               </Link>
             </div>
