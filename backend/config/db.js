@@ -1,6 +1,8 @@
 const { createClient } = require('@libsql/client');
+const path = require('path');
 
-const url = process.env.TURSO_DATABASE_URL || 'file:campusquery.db';
+const localDatabasePath = path.resolve(__dirname, '..', 'campusquery.db');
+const url = process.env.TURSO_DATABASE_URL || `file:${localDatabasePath}`;
 const authToken = process.env.TURSO_AUTH_TOKEN;
 
 const db = createClient({
