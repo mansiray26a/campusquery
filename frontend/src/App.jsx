@@ -1,6 +1,7 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { BrowserRouter as Router, Navigate, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { AuthContext } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 
@@ -29,13 +30,27 @@ import ManageAnswers from './admin/ManageAnswers';
 import ManageTags from './admin/ManageTags';
 import Reports from './admin/Reports';
 
+function HomeRoute() {
+  const { user, loading } = useContext(AuthContext);
+
+  if (loading) {
+    return <div className="loading-spinner">Loading session...</div>;
+  }
+
+  if (user) {
+    return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+  }
+
+  return <LandingPage />;
+}
+
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<HomeRoute />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/questions" element={<AllQuestions />} />

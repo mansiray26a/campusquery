@@ -30,12 +30,21 @@ const Navbar = () => {
     <nav className={`navbar${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
       <div className="navbar-container">
         {/* Brand */}
-        <Link to="/" className="navbar-brand" aria-label="CampusQuery home">
+        <Link to={user?.role === 'admin' ? '/admin' : user ? '/dashboard' : '/'} className="navbar-brand" aria-label={user ? 'CampusQuery dashboard' : 'CampusQuery home'}>
           Campus<span>Query</span>
         </Link>
 
         {/* Desktop Links */}
         <div className="navbar-links" role="menubar">
+          {user && (
+            <NavLink
+              to={user.role === 'admin' ? '/admin' : '/dashboard'}
+              className={({ isActive }) => `navbar-item${isActive ? ' active' : ''}`}
+              role="menuitem"
+            >
+              Dashboard
+            </NavLink>
+          )}
           <NavLink
             to="/questions"
             className={({ isActive }) => `navbar-item${isActive ? ' active' : ''}`}

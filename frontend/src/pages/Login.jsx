@@ -15,7 +15,7 @@ const Login = () => {
   const navigate                = useNavigate();
 
   useEffect(() => {
-    if (user) navigate('/dashboard');
+    if (user) navigate(user.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
   }, [user, navigate]);
 
   const handleSubmit = async (e) => {
@@ -26,8 +26,8 @@ const Login = () => {
     }
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const loggedInUser = await login(email, password);
+      navigate(loggedInUser.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
