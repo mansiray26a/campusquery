@@ -14,6 +14,7 @@ class User {
     this.bio = data.bio || '';
     this.profilePicture = data.profilePicture || '';
     this.savedQuestions = Array.isArray(data.savedQuestions) ? data.savedQuestions : [];
+    this.sessionVersion = Number(data.sessionVersion || 0);
     this.createdAt = data.createdAt || new Date().toISOString();
   }
 
@@ -105,6 +106,13 @@ class User {
     await db.execute({ sql: 'DELETE FROM users WHERE id = ?', args: [id.toString()] });
   }
 
+  static async incrementSessionVersion(id) {
+    await db.execute({
+      sql: 'UPDATE users SET sessionVersion = sessionVersion + 1 WHERE id = ?',
+      args: [id.toString()]
+    });
+  }
+
   static async findByIdAndUpdate(id, update) {
     if (update.$inc && update.$inc.reputation !== undefined) {
       await db.execute({
@@ -116,6 +124,25 @@ class User {
 
   select() {
     return this;
+  }
+
+  toPublicObject() {
+    return {
+      _id: this.id,
+      username: this.username,
+      role: this.role,
+      reputation: this.reputation,
+      bio: this.bio,
+      profilePicture: this.profilePicture,
+      createdAt: this.createdAt
+    };
+  }
+
+  toAdminObject() {
+    return {
+      ...this.toPublicObject(),
+      email: this.email
+    };
   }
 
   async matchPassword(enteredPassword) {

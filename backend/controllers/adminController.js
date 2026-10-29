@@ -33,7 +33,7 @@ const getAdminStats = async (req, res, next) => {
 const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
-    res.json(users);
+    res.json(users.map((user) => user.toAdminObject()));
   } catch (error) {
     next(error);
   }
@@ -59,7 +59,7 @@ const updateUserRole = async (req, res, next) => {
     user.role = role;
     await user.save();
 
-    res.json({ message: 'User role updated successfully', user });
+    res.json({ message: 'User role updated successfully', user: user.toAdminObject() });
   } catch (error) {
     next(error);
   }

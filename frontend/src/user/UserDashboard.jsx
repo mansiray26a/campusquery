@@ -37,20 +37,28 @@ const UserDashboard = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let active = true;
+    setStats(null);
+    setError('');
+    setLoading(true);
+
     const fetchDashboardData = async () => {
       try {
         const data = await authService.getUserDashboardData();
-        setStats(data);
+        if (active) setStats(data);
       } catch (err) {
-        setError('Failed to load dashboard data. Please try again.');
-        console.error(err);
+        if (active) {
+          setError('Failed to load dashboard data. Please try again.');
+          console.error(err);
+        }
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, []);
+    return () => { active = false; };
+  }, [user?._id]);
 
   if (loading) {
     return (
@@ -99,15 +107,15 @@ const UserDashboard = () => {
               
               <div className="stats-mini-grid">
                 <div className="stat-mini-item">
-                  <div className="stat-mini-val">{stats?.reputation || 0}</div>
+                  <div className="stat-mini-val">{stats ? stats.reputation : '—'}</div>
                   <div className="stat-mini-lbl">Reputation</div>
                 </div>
                 <div className="stat-mini-item">
-                  <div className="stat-mini-val">{stats?.questionCount || 0}</div>
+                  <div className="stat-mini-val">{stats ? stats.questionCount : '—'}</div>
                   <div className="stat-mini-lbl">Asked</div>
                 </div>
                 <div className="stat-mini-item">
-                  <div className="stat-mini-val">{stats?.answerCount || 0}</div>
+                  <div className="stat-mini-val">{stats ? stats.answerCount : '—'}</div>
                   <div className="stat-mini-lbl">Solved</div>
                 </div>
               </div>
@@ -151,7 +159,12 @@ const UserDashboard = () => {
             </div>
 
             <div className="questions-list">
-              {activeTab === 'recent' ? (
+              {error ? (
+                <div className="empty-state" role="alert">
+                  <h3>Dashboard data unavailable</h3>
+                  <p>{error}</p>
+                </div>
+              ) : activeTab === 'recent' ? (
                 stats?.recentQuestions && stats.recentQuestions.length > 0 ? (
                   stats.recentQuestions.map((q) => (
                     <QuestionCard key={q._id} question={q} />

@@ -20,22 +20,37 @@ const Profile = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let active = true;
+    setProfileUser(null);
+    setQuestions([]);
+    setAnswersCount(0);
+    setError('');
+    setLoading(true);
+
     const fetchProfile = async () => {
-      if (!targetId) return;
+      if (!targetId) {
+        setLoading(false);
+        return;
+      }
       try {
         const data = await authService.getUserProfile(targetId);
-        setProfileUser(data);
-        setQuestions(data.questions || []);
-        setAnswersCount(data.answersCount || 0);
+        if (active) {
+          setProfileUser(data);
+          setQuestions(data.questions || []);
+          setAnswersCount(data.answersCount || 0);
+        }
       } catch (err) {
-        setError('Failed to load profile details.');
-        console.error(err);
+        if (active) {
+          setError('Failed to load profile details. Please try again.');
+          console.error(err);
+        }
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
 
     fetchProfile();
+    return () => { active = false; };
   }, [targetId]);
 
   const formatDate = (dateString) => {
@@ -63,8 +78,8 @@ const Profile = () => {
         <Navbar />
         <main className="main-content">
           <div className="empty-state">
-            <h3>User not found</h3>
-            <p>The profile you are looking for does not exist or has been removed.</p>
+            <h3>{error ? 'Profile unavailable' : 'User not found'}</h3>
+            <p>{error || 'The profile you are looking for does not exist or has been removed.'}</p>
             <Link to="/questions" className="btn btn-primary" style={{ marginTop: 'var(--space-4)' }}>
               Browse Questions
             </Link>

@@ -17,12 +17,18 @@ const connectDB = async () => {
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
         role TEXT DEFAULT 'student',
+        sessionVersion INTEGER NOT NULL DEFAULT 0,
         reputation INTEGER DEFAULT 0,
         bio TEXT DEFAULT '',
         profilePicture TEXT DEFAULT '',
         createdAt TEXT NOT NULL
       );
     `);
+
+    const userColumns = await db.execute('PRAGMA table_info(users)');
+    if (!userColumns.rows.some((column) => column.name === 'sessionVersion')) {
+      await db.execute('ALTER TABLE users ADD COLUMN sessionVersion INTEGER NOT NULL DEFAULT 0');
+    }
 
     await db.execute(`
       CREATE TABLE IF NOT EXISTS questions (

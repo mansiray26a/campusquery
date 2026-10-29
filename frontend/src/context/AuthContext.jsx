@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useRef } from 'react';
 import * as authService from '../services/authService';
 
 export const AuthContext = createContext();
@@ -6,24 +6,32 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const authRevision = useRef(0);
 
   const checkUserLoggedIn = async () => {
+    const revision = ++authRevision.current;
     const token = localStorage.getItem('token');
     if (!token) {
-      setUser(null);
-      setLoading(false);
+      if (revision === authRevision.current) {
+        setUser(null);
+        setLoading(false);
+      }
       return;
     }
 
     try {
       const userData = await authService.getMe();
-      setUser(userData);
+      if (revision === authRevision.current && localStorage.getItem('token') === token) {
+        setUser(userData);
+      }
     } catch (error) {
-      console.error('Failed to verify token:', error.message);
-      localStorage.removeItem('token');
-      setUser(null);
+      if (revision === authRevision.current && localStorage.getItem('token') === token) {
+        console.error('Failed to verify token:', error.message);
+        localStorage.removeItem('token');
+        setUser(null);
+      }
     } finally {
-      setLoading(false);
+      if (revision === authRevision.current) setLoading(false);
     }
   };
 
@@ -32,30 +40,34 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const loginUser = async (email, password) => {
+    const revision = ++authRevision.current;
     setLoading(true);
     try {
       const userData = await authService.login(email, password);
-      setUser(userData);
+      if (revision === authRevision.current) setUser(userData);
       return userData;
     } finally {
-      setLoading(false);
+      if (revision === authRevision.current) setLoading(false);
     }
   };
 
   const registerUser = async (username, email, password) => {
+    const revision = ++authRevision.current;
     setLoading(true);
     try {
       const userData = await authService.register(username, email, password);
-      setUser(userData);
+      if (revision === authRevision.current) setUser(userData);
       return userData;
     } finally {
-      setLoading(false);
+      if (revision === authRevision.current) setLoading(false);
     }
   };
 
   const logoutUser = () => {
-    authService.logout();
+    ++authRevision.current;
     setUser(null);
+    setLoading(false);
+    return authService.logout();
   };
 
   return (

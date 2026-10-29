@@ -23,7 +23,9 @@ export const register = async (username, email, password) => {
 };
 
 export const logout = () => {
+  const logoutRequest = request('/auth/logout', { method: 'POST' }).catch(() => {});
   localStorage.removeItem('token');
+  return logoutRequest;
 };
 
 export const getMe = async () => {

@@ -152,7 +152,7 @@ class Answer {
     if (path === 'author') {
       if (typeof this.author === 'string') {
         const user = await User.findById(this.author);
-        this.author = user ? user : { _id: this.author, username: 'Unknown User' };
+        this.author = user ? user.toPublicObject() : { _id: this.author, username: 'Unknown User' };
       }
     } else if (path === 'question') {
       if (typeof this.question === 'string') {

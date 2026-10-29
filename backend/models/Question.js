@@ -233,7 +233,7 @@ class Question {
     if (path === 'author') {
       if (typeof this.author === 'string') {
         const user = await User.findById(this.author);
-        this.author = user ? user : { _id: this.author, username: 'Unknown User' };
+        this.author = user ? user.toPublicObject() : { _id: this.author, username: 'Unknown User' };
       }
     } else if (path === 'tags') {
       if (Array.isArray(this.tags) && (this.tags.length === 0 || typeof this.tags[0] === 'string')) {

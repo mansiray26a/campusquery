@@ -118,7 +118,7 @@ class Report {
     if (path === 'reporter') {
       if (typeof this.reporter === 'string') {
         const user = await User.findById(this.reporter);
-        this.reporter = user ? user : { _id: this.reporter, username: 'Unknown User' };
+        this.reporter = user ? user.toPublicObject() : { _id: this.reporter, username: 'Unknown User' };
       }
     } else if (path === 'targetId' || (typeof path === 'object' && path.path === 'targetId')) {
       const Question = require('./Question');
