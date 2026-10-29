@@ -10,6 +10,11 @@ const updateProfile = async (req, res, next) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
+      if (req.body.bio !== undefined && typeof req.body.bio === 'string' && req.body.bio.length > 1000) {
+        res.status(400);
+        throw new Error('Bio must not exceed 1000 characters');
+      }
+
       user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
       user.profilePicture = req.body.profilePicture !== undefined ? req.body.profilePicture : user.profilePicture;
 
